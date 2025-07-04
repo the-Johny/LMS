@@ -1,0 +1,95 @@
+# @questionId=
+# @courseId=6bb881f0-144f-4e8e-abdd-aa761f967492
+
+# @quizId=0fd1a290-7e2e-43fd-90e8-1ac2d3e43257
+# @userId=5d6df235-ebbb-464a-a3e3-d72fceb57d52
+
+// =============================
+// Quiz API Testing Flow
+// =============================
+
+// --- 1. Set Variables ---
+@courseId=6bb881f0-144f-4e8e-abdd-aa761f967492
+@quizId=5fb871e2-dfc4-4349-861d-aa3a0b9eccd2
+@questionId=f2e33b08-1825-4c45-9675-cf0da5630a82
+@userId=5d6df235-ebbb-464a-a3e3-d72fceb57d52
+
+// --- 2. Get all quizzes for a course ---
+GET http://localhost:3000/quizzes/course/{{courseId}}
+
+// --- 3. Create a new quiz ---
+POST http://localhost:3000/quizzes
+Content-Type: application/json
+
+{
+  "title": "Sample Quiz",
+  "courseId": "{{courseId}}",
+  "timeLimit": 30
+}
+// Copy the returned quizId and set it as @quizId for the next steps
+
+// --- 4. Update a quiz ---
+###
+PUT http://localhost:3000/quizzes/{{quizId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Quiz Title"
+}
+
+// --- 5. Get all questions for a quiz ---
+###
+GET http://localhost:3000/quizzes/{{quizId}}/questions
+
+// --- 6. Create a question for the quiz ---
+###
+POST http://localhost:3000/quizzes/questions
+Content-Type: application/json
+
+{
+  "question": "What is TypeScript?",
+  "type": "MCQ",
+  "quizId": "{{quizId}}",
+  "options": [
+    { "value": "A language", "isCorrect": true },
+    { "value": "A database", "isCorrect": false },
+    { "value": "A framework", "isCorrect": false }
+  ],
+  "answer": "A language"
+}
+// Copy the returned questionId and set it as @questionId for the next steps
+
+// --- 7. Update a question ---
+###
+PUT http://localhost:3000/quizzes/questions/{{questionId}}
+Content-Type: application/json
+
+{
+  "question": "Updated Question Text"
+}
+
+// --- 8. Delete a question ---
+###
+DELETE http://localhost:3000/quizzes/questions/{{questionId}}
+
+// --- 9. Delete a quiz ---
+###
+DELETE http://localhost:3000/quizzes/{{quizId}}
+
+// --- 10. Get quiz attempts by user ---
+###
+GET http://localhost:3000/quizzes/attempts/user/{{userId}}
+
+// --- 11. Create a quiz attempt ---
+###
+POST http://localhost:3000/quizzes/attempts
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "quizId": "{{quizId}}",
+  "answers": [
+    { "questionId": "{{questionId}}", "answer": "A language" }
+  ]
+}
+

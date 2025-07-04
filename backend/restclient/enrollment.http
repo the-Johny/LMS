@@ -1,0 +1,47 @@
+@userId =5d6df235-ebbb-464a-a3e3-d72fceb57d52
+@enrollmentId =8cda10b9-3f5a-4cf6-84a3-e511bd7004d4
+@courseId=6bb881f0-144f-4e8e-abdd-aa761f967492
+@lessonId=
+
+### Enroll a user in a course
+POST http://localhost:3000/enrollments
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "{{courseId}}"
+}
+
+### Get enrollments by user
+GET http://localhost:3000/enrollments/user/{{userId}}
+
+### Get enrollments by course
+GET http://localhost:3000/enrollments/course/{{courseId}}
+
+### Unenroll a user
+DELETE http://localhost:3000/enrollments/{{enrollmentId}}
+
+### Get progress for an enrollment
+GET http://localhost:3000/enrollments/{{enrollmentId}}/progress
+
+### Mark lesson as complete
+POST http://localhost:3000/enrollments/progress/complete
+Content-Type: application/json
+
+{
+  "enrollmentId": "{{enrollmentId}}",
+  "lessonId": "{{lessonId}}"
+}
+
+### Get certificates by user
+GET http://localhost:3000/enrollments/certificates/{{userId}}
+
+### Issue a certificate
+POST http://localhost:3000/enrollments/certificates
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "{{courseId}}",
+  "certificateUrl": "https://example.com/certificate.pdf"
+}

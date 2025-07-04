@@ -50,7 +50,7 @@ model User {
   name            String
   email           String   @unique
   password        String
-  role            Role
+  role            Role     @default(STUDENT)
   isEmailVerified Boolean  @default(false)
   resetToken      String?
   createdAt       DateTime @default(now())
@@ -67,6 +67,8 @@ model User {
   discussions      DiscussionPost[]
   replies          Reply[]
   LessonCompletion LessonCompletion[]
+  moduleProgress   UserModuleProgress[]
+  courseProgress   UserCourseProgress[]
 }
 
 model Course {
@@ -90,6 +92,7 @@ model Course {
   quizzes       Quiz[]
   discussions   DiscussionPost[]
   certificates  Certificate[]
+  courseProgress UserCourseProgress[]
 }
 
 model Module {
@@ -99,6 +102,7 @@ model Module {
   courseId String
 
   lessons Lesson[]
+  moduleProgress UserModuleProgress[]
 }
 
 model Lesson {
@@ -137,7 +141,11 @@ model Progress {
   User         User?      @relation(fields: [userId], references: [id])
   userId       String?
 
+<<<<<<< Updated upstream
   @@unique([enrollmentId, lessonId]) 
+=======
+  @@unique([enrollmentId, lessonId])
+>>>>>>> Stashed changes
 }
 
 
@@ -253,4 +261,26 @@ model Reply {
   postId    String
   userId    String
   createdAt DateTime       @default(now())
+}
+
+model UserModuleProgress {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  moduleId  String
+  complete  Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  module    Module   @relation(fields: [moduleId], references: [id])
+
+  @@unique([userId, moduleId], name: "userId_moduleId")
+}
+
+model UserCourseProgress {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  courseId  String
+  complete  Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId], name: "userId_courseId")
 }
