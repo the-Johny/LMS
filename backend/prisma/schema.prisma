@@ -1,3 +1,8 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -45,7 +50,7 @@ model User {
   name            String
   email           String   @unique
   password        String
-  role            Role
+  role            Role     @default(STUDENT)
   isEmailVerified Boolean  @default(false)
   resetToken      String?
   createdAt       DateTime @default(now())
@@ -62,6 +67,8 @@ model User {
   discussions      DiscussionPost[]
   replies          Reply[]
   LessonCompletion LessonCompletion[]
+  moduleProgress   UserModuleProgress[]
+  courseProgress   UserCourseProgress[]
 }
 
 model Course {
@@ -85,6 +92,7 @@ model Course {
   quizzes       Quiz[]
   discussions   DiscussionPost[]
   certificates  Certificate[]
+  courseProgress UserCourseProgress[]
 }
 
 model Module {
@@ -94,6 +102,7 @@ model Module {
   courseId String
 
   lessons Lesson[]
+  moduleProgress UserModuleProgress[]
 }
 
 model Lesson {
@@ -131,7 +140,10 @@ model Progress {
   completed    Boolean    @default(false)
   User         User?      @relation(fields: [userId], references: [id])
   userId       String?
+
+  @@unique([enrollmentId, lessonId]) 
 }
+
 
 model LessonCompletion {
   id          String   @id @default(uuid())
@@ -245,4 +257,26 @@ model Reply {
   postId    String
   userId    String
   createdAt DateTime       @default(now())
+}
+
+model UserModuleProgress {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  moduleId  String
+  complete  Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  module    Module   @relation(fields: [moduleId], references: [id])
+
+  @@unique([userId, moduleId], name: "userId_moduleId")
+}
+
+model UserCourseProgress {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  courseId  String
+  complete  Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId], name: "userId_courseId")
 }
