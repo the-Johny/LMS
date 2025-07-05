@@ -82,12 +82,17 @@ export class QuizzesController {
 
   // Attempts
   @Get('attempts/user/:userId')
-  getAttemptsByUser(@Param('userId') userId: string) {
-    return this.quizzesService.getAttemptsByUser(userId);
+  @ApiOperation({ summary: 'Get quiz attempts by user (Student can see own attempts, Instructor/Admin can see any attempts)' })
+  @ApiResponse({ status: 200, description: 'Quiz attempts retrieved successfully' })
+  getAttemptsByUser(@Param('userId') userId: string, @CurrentUser() user: any) {
+    return this.quizzesService.getAttemptsByUser(userId, user);
   }
 
   @Post('attempts')
-  createAttempt(@Body() data: CreateAttemptDto) {
-    return this.quizzesService.createAttempt(data);
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Create a quiz attempt (Student can attempt quizzes they are enrolled in, Instructor/Admin can attempt any quiz)' })
+  @ApiResponse({ status: 201, description: 'Quiz attempt created successfully' })
+  createAttempt(@Body() data: CreateAttemptDto, @CurrentUser() user: any) {
+    return this.quizzesService.createAttempt(data, user);
   }
 }

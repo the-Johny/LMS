@@ -1,10 +1,20 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async create(createLessonDto: CreateLessonDto, user: any) {
     // Check if user is instructor of the course or admin
@@ -18,10 +28,40 @@ export class LessonsService {
     }
 
     if (user.role !== 'ADMIN' && module.course.instructorId !== user.userId) {
-      throw new ForbiddenException('You can only create lessons for your own courses');
+      throw new ForbiddenException(
+        'You can only create lessons for your own courses',
+      );
     }
 
-    return this.prisma.lesson.create({ data: createLessonDto });
+    // Create the lesson first to get the ID
+    const lesson = await this.prisma.lesson.create({ data: createLessonDto });
+
+    // If the content URL is not already a Cloudinary URL, upload it to Cloudinary
+    if (!this.cloudinaryService.isCloudinaryUrl(createLessonDto.contentUrl)) {
+      try {
+        const cloudinaryResult = await this.cloudinaryService.uploadLessonContent(
+          createLessonDto.contentUrl,
+          lesson.id,
+        );
+        
+        // Update the lesson with the Cloudinary URL
+        await this.prisma.lesson.update({
+          where: { id: lesson.id },
+          data: { contentUrl: cloudinaryResult.secure_url },
+        });
+
+        return {
+          ...lesson,
+          contentUrl: cloudinaryResult.secure_url,
+        };
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        // If Cloudinary upload fails, return the lesson with original URL
+        return lesson;
+      }
+    }
+
+    return lesson;
   }
 
   async findByModule(moduleId: string) {
@@ -35,11 +75,11 @@ export class LessonsService {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
     });
-    
+
     if (!lesson) {
       throw new NotFoundException('Lesson not found');
     }
-    
+
     return lesson;
   }
 
@@ -53,8 +93,34 @@ export class LessonsService {
       throw new NotFoundException('Lesson not found');
     }
 
-    if (user.role !== 'ADMIN' && lesson.module.course.instructorId !== user.userId) {
-      throw new ForbiddenException('You can only update lessons for your own courses');
+    if (
+      user.role !== 'ADMIN' &&
+      lesson.module.course.instructorId !== user.userId
+    ) {
+      throw new ForbiddenException(
+        'You can only update lessons for your own courses',
+      );
+    }
+
+    // If contentUrl is being updated and it's not a Cloudinary URL
+    if (updateLessonDto.contentUrl && !this.cloudinaryService.isCloudinaryUrl(updateLessonDto.contentUrl)) {
+      try {
+        // Delete the old Cloudinary file if it exists
+        if (this.cloudinaryService.isCloudinaryUrl(lesson.contentUrl)) {
+          await this.cloudinaryService.deleteLessonContent(lesson.id);
+        }
+
+        // Upload the new content to Cloudinary
+        const cloudinaryResult = await this.cloudinaryService.uploadLessonContent(
+          updateLessonDto.contentUrl,
+          lesson.id,
+        );
+        
+        updateLessonDto.contentUrl = cloudinaryResult.secure_url;
+      } catch (error) {
+        console.error('Error updating Cloudinary content:', error);
+        // Continue with the update even if Cloudinary fails
+      }
     }
 
     return this.prisma.lesson.update({
@@ -73,10 +139,25 @@ export class LessonsService {
       throw new NotFoundException('Lesson not found');
     }
 
-    if (user.role !== 'ADMIN' && lesson.module.course.instructorId !== user.userId) {
-      throw new ForbiddenException('You can only delete lessons for your own courses');
+    if (
+      user.role !== 'ADMIN' &&
+      lesson.module.course.instructorId !== user.userId
+    ) {
+      throw new ForbiddenException(
+        'You can only delete lessons for your own courses',
+      );
+    }
+
+    // Delete the Cloudinary file if it exists
+    if (this.cloudinaryService.isCloudinaryUrl(lesson.contentUrl)) {
+      try {
+        await this.cloudinaryService.deleteLessonContent(lesson.id);
+      } catch (error) {
+        console.error('Error deleting Cloudinary content:', error);
+        // Continue with deletion even if Cloudinary deletion fails
+      }
     }
 
     return this.prisma.lesson.delete({ where: { id } });
   }
-} 
+}

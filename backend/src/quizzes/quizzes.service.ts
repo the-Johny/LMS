@@ -78,29 +78,38 @@ export class QuizzesService {
     console.log('QuizzesService.getQuestionsByQuiz', { quizId });
     return this.prisma.question.findMany({ where: { quizId } });
   }
-  async createQuestion(data: any, user: any) {
-    console.log('QuizzesService.createQuestion', { data });
-    
-    const quiz = await this.prisma.quiz.findUnique({
-      where: { id: data.quizId },
-      include: { course: true },
-    });
+async createQuestion(data: any, user: any) {
+  const quiz = await this.prisma.quiz.findUnique({
+    where: { id: data.quizId },
+    include: { course: true },
+  });
 
-    if (!quiz) {
-      throw new NotFoundException('Quiz not found');
-    }
-
-    if (user.role !== 'ADMIN' && quiz.course.instructorId !== user.userId) {
-      throw new ForbiddenException('You can only create questions for your own courses');
-    }
-
-    return this.prisma.question.create({
-      data: {
-        ...data,
-        options: { create: data.options },
-      },
-    });
+  if (!quiz) {
+    throw new NotFoundException('Quiz not found');
   }
+
+  if (user.role !== 'ADMIN' && quiz.course.instructorId !== user.userId) {
+    throw new ForbiddenException('You can only create questions for your own courses');
+  }
+
+  const formattedOptions = data.options.map((opt: any) => ({
+    value: opt.text, 
+    isCorrect: opt.isCorrect ?? false,
+  }));
+
+  return this.prisma.question.create({
+    data: {
+      question: data.question,
+      type: data.type,
+      answer: data.answer,
+      quizId: data.quizId,
+      options: {
+        create: formattedOptions,
+      },
+    },
+  });
+}
+
   async updateQuestion(id: string, data: any, user: any) {
     console.log('QuizzesService.updateQuestion', { id, data });
     
@@ -139,13 +148,93 @@ export class QuizzesService {
   }
 
   // Attempts
-  async getAttemptsByUser(userId: string) {
-    console.log('QuizzesService.getAttemptsByUser', { userId });
-    return this.prisma.quizAttempt.findMany({ where: { userId } });
+  async getAttemptsByUser(userId: string, user: any) {
+    console.log('QuizzesService.getAttemptsByUser', { userId, user });
+    
+    // Students can only see their own attempts
+    if (user.role === 'STUDENT' && user.userId !== userId) {
+      throw new ForbiddenException('You can only view your own quiz attempts');
+    }
+    
+    // Instructors can only see attempts for students in their courses
+    if (user.role === 'INSTRUCTOR') {
+      const attempts = await this.prisma.quizAttempt.findMany({
+        where: { userId },
+        include: {
+          quiz: {
+            include: {
+              course: true
+            }
+          }
+        }
+      });
+      
+      // Filter attempts to only include those from courses the instructor teaches
+      const filteredAttempts = attempts.filter(attempt => 
+        attempt.quiz.course.instructorId === user.userId
+      );
+      
+      if (filteredAttempts.length === 0 && attempts.length > 0) {
+        throw new ForbiddenException('You can only view quiz attempts for students in your courses');
+      }
+      
+      return filteredAttempts;
+    }
+    
+    // Admins can see all attempts
+    return this.prisma.quizAttempt.findMany({ 
+      where: { userId },
+      include: {
+        quiz: {
+          include: {
+            course: true
+          }
+        }
+      }
+    });
   }
-  async createAttempt(data: { quizId: string; userId: string; answers: { questionId: string; answer: string }[] }) {
-    console.log('QuizzesService.createAttempt', { data });
+  async createAttempt(data: { quizId: string; userId: string; answers: { questionId: string; answer: string }[] }, user: any) {
+    console.log('QuizzesService.createAttempt', { data, user });
     const { quizId, userId, answers } = data;
+    
+    // Check if quiz exists and get course information
+    const quiz = await this.prisma.quiz.findUnique({
+      where: { id: quizId },
+      include: { course: true }
+    });
+    
+    if (!quiz) {
+      throw new NotFoundException('Quiz not found');
+    }
+    
+    // Students can only attempt quizzes for courses they are enrolled in
+    if (user.role === 'STUDENT') {
+      // Check if the user is enrolled in the course
+      const enrollment = await this.prisma.enrollment.findFirst({
+        where: {
+          userId: user.userId,
+          courseId: quiz.courseId
+        }
+      });
+      
+      if (!enrollment) {
+        throw new ForbiddenException('You must be enrolled in this course to attempt its quizzes');
+      }
+      
+      // Ensure students can only attempt quizzes for themselves
+      if (user.userId !== userId) {
+        throw new ForbiddenException('You can only attempt quizzes for yourself');
+      }
+    }
+    
+    // Instructors can only attempt quizzes for courses they teach
+    if (user.role === 'INSTRUCTOR') {
+      if (quiz.course.instructorId !== user.userId) {
+        throw new ForbiddenException('You can only attempt quizzes for courses you teach');
+      }
+    }
+    
+    // Admins can attempt any quiz
     // Fetch all questions for the quiz
     const questions = await this.prisma.question.findMany({ where: { quizId } });
     // Map answers for quick lookup

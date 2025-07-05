@@ -1,9 +1,12 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseGuards, UsePipes, ValidationPipe, ForbiddenException } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { MarkCompleteDto } from './dto/mark-complete.dto';
 import { BulkMarkCompleteDto } from './dto/bulk-mark-complete.dto';
-import { ApiTags, ApiBody, ApiOkResponse, ApiParam, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiParam, ApiQuery, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserProgressDto } from './dto/user-progress.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -24,7 +27,7 @@ export class ProgressController {
   @ApiBody({ type: MarkCompleteDto })
   @ApiResponse({ status: 201, description: 'Lesson marked as completed successfully' })
   markComplete(@Body() dto: MarkCompleteDto, @CurrentUser() user: any) {
-    // Verify user owns the enrollment
+ 
     return this.progressService.markLessonComplete(dto, user.userId);
   }
 
@@ -34,7 +37,6 @@ export class ProgressController {
   @ApiBody({ type: MarkCompleteDto })
   @ApiResponse({ status: 201, description: 'Lesson marked as incomplete successfully' })
   markIncomplete(@Body() dto: MarkCompleteDto, @CurrentUser() user: any) {
-    // Verify user owns the enrollment
     return this.progressService.markLessonIncomplete(dto, user.userId);
   }
 
@@ -132,7 +134,7 @@ export class ProgressController {
   @ApiParam({ name: 'enrollmentId', type: String })
   @ApiOperation({ summary: 'Reset all progress for an enrollment (Student/Admin only)' })
   @ApiResponse({ status: 200, description: 'Reset all progress for an enrollment' })
-  @Roles(Role.STUDENT, Role.ADMIN)
+  @Roles(Role.STUDENT, Role.INSTRUCTOR)
   resetProgress(@Param('enrollmentId') enrollmentId: string, @CurrentUser() user: any) {
     // Students can only reset their own progress, Admins can reset any
     if (user.role === Role.STUDENT) {

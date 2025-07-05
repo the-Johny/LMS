@@ -72,13 +72,11 @@ export class EnrollmentsController {
 
   // Certificates
   @Get('certificates/:userId')
-  @Roles(Role.ADMIN, Role.STUDENT)
+  @Roles(Role.ADMIN, Role.STUDENT, Role.INSTRUCTOR)
+  @ApiOperation({ summary: 'Get certificates by user (Admin can see all, Instructor can see students in their courses, Student can see own)' })
+  @ApiResponse({ status: 200, description: 'Certificates retrieved successfully' })
   getCertificatesByUser(@Param('userId') userId: string, @CurrentUser() user: any) {
-    // Allow if admin, or if the user is requesting their own certificates
-    if (user.role !== Role.ADMIN && user.userId !== userId) {
-      throw new ForbiddenException('You are not allowed to view these certificates');
-    }
-    return this.enrollmentsService.getCertificatesByUser(userId);
+    return this.enrollmentsService.getCertificatesByUser(userId, user);
   }
 
   @Post('certificates')

@@ -1,14 +1,18 @@
-@INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTcxNjE3MywiZXhwIjoxNzUxODAyNTczfQ.TmnRfERlPMABnbydLIWyydnh50vq3qR4FUr0WEqx5Hw
+@INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTc0MzA4MCwiZXhwIjoxNzUxODI5NDgwfQ.TC3kiFJTGtQJSG6Eu2hg1yAzmbIRFx7_NHJk9HlWwtQ
+@COURSE_ID=558600e1-c76c-4aad-8f2a-72534ccf413c
 
-@COURSE_ID=2dface0f-7780-43b8-90c4-318dfe73da20
-@courseId=2dface0f-7780-43b8-90c4-318dfe73da20
-@MODULE_ID=8018ccea-1e2d-4ed1-9da1-8ab5670c220c
-@LESSON_ID=
+@MODULE_ID=e6d99566-5385-4506-b44f-d56fc9e43039
+
+@LESSON_ID=23657448-92cd-4e43-8550-4768be6b6040
+
 @ENROLLMENT_ID=
-@instructorId=9d5bea6b-c669-43e8-bebb-450950413313
-@userId=
 
-@QUIZ_ID=
+@INSTRUCTOR_ID=
+
+@userId=93bbc8f1-37b2-40a6-a92c-5723dacff1e5
+
+
+@QUIZ_ID=6bc4525a-cbc6-4bb9-b283-f3520f2ee14d
 
 @QUESTION_ID=
 
@@ -21,9 +25,6 @@ Content-Type: application/json
   "password": "instructor123"
 }
 
-
-
-### ===== INSTRUCTOR ENDPOINTS =====
 
 ### Instructor creates a course
 POST http://localhost:3000/courses
@@ -50,6 +51,7 @@ Content-Type: application/json
   "courseId": "{{COURSE_ID}}"
 }
 
+###
 PUT http://localhost:3000/content/modules/{{MODULE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -58,15 +60,15 @@ Content-Type: application/json
   "title": "Updated Module Title"
 }
 
-###
+### DELETE A MODULE
 DELETE http://localhost:3000/content/modules/{{MODULE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 ###Get modules by course
-GET http://localhost:3000/content/courses/{{courseId}}/modules
+GET http://localhost:3000/content/courses/{{COURSE_ID}}/modules
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### Instructor creates a lesson
+### Instructor creates a lesson (contentUrl will be automatically uploaded to Cloudinary)
 POST http://localhost:3000/lessons
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -80,6 +82,19 @@ Content-Type: application/json
   "isVisible": true
 }
 
+### Instructor creates a lesson with Cloudinary URL (will be stored as-is)
+POST http://localhost:3000/lessons
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Advanced Programming Concepts",
+  "contentUrl": "https://res.cloudinary.com/your-cloud/video/upload/v1234567890/lessons/lesson_advanced.mp4",
+  "type": "VIDEO",
+  "order": 2,
+  "moduleId": "{{MODULE_ID}}",
+  "isVisible": true
+}
 
 ###GET LESSONS 
 GET http://localhost:3000/content/modules/{{MODULE_ID}}/lessons
@@ -94,36 +109,63 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 GET http://localhost:3000/modules/course/{{COURSE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### Get modules by course (Admin/Instructor only)
-GET http://localhost:3000/content/courses/{{courseId}}/modules
+### Get modules by course 
+GET http://localhost:3000/content/courses/{{COURSE_ID}}/modules
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Get module progress for a course 
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/module-progress
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Get time spent analytics for user 
+GET http://localhost:3000/analytics/time-spent/{{userId}}?courseId={{COURSE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 ### Instructor gets lessons for their module
 GET http://localhost:3000/lessons/module/{{MODULE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### Issue a certificate (Admin/Instructor only)
+### Issue a certificate (certificateUrl will be automatically uploaded to Cloudinary)
 POST http://localhost:3000/enrollments/certificates
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
 
 {
   "userId": "{{userId}}",
-  "courseId": "{{courseId}}",
+  "courseId": "{{COURSE_ID}}",
   "certificateUrl": "https://example.com/certificate.pdf"
 }
 
+### Issue a certificate with Cloudinary URL (will be stored as-is)
+POST http://localhost:3000/enrollments/certificates
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
 
-### Get enrollments by course (Admin/Instructor only)
-GET http://localhost:3000/enrollments/course/{{courseId}}
+{
+  "userId": "{{userId}}",
+  "courseId": "{{COURSE_ID}}",
+  "certificateUrl": "https://res.cloudinary.com/your-cloud/raw/upload/v1234567890/certificates/certificate_completion.pdf"
+}
+
+### Get certificates for a student (Instructor can see students in their courses)
+GET http://localhost:3000/enrollments/certificates/{{userId}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### 2. Get all quizzes for a course ---
-GET http://localhost:3000/quizzes/course/{{courseId}}
+
+### Get certificate stats (Admin/Instructor)
+GET http://localhost:3000/analytics/certificate-stats?instructorId={{INSTRUCTOR_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Get enrollments by course 
+GET http://localhost:3000/enrollments/course/{{COURSE_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### 2. Get all quizzes for a course 
+GET http://localhost:3000/quizzes/course/{{COURSE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 
-### 3. Create a new quiz ---
+### 3. Create a new quiz 
 POST http://localhost:3000/quizzes
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -134,7 +176,24 @@ Content-Type: application/json
   "timeLimit": 30
 }
 
-### 4. Update a quiz ---
+###  Create a question for the quiz 
+POST http://localhost:3000/quizzes/questions
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+{
+  "question": "What is TypeScript?",
+  "type": "MCQ",
+  "quizId": "{{QUIZ_ID}}",
+  "options": [
+    { "value": "A language", "isCorrect": true },
+    { "value": "A database", "isCorrect": false },
+    { "value": "A framework", "isCorrect": false }
+  ],
+  "answer": "A language"
+}
+
+### 4. Update a quiz 
 PUT http://localhost:3000/quizzes/{{QUIZ_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -145,7 +204,7 @@ Content-Type: application/json
 }
 
 
-### 6. Create a question for the quiz ---
+### 6. Create a question for the quiz 
 POST http://localhost:3000/quizzes/questions
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -156,14 +215,13 @@ Content-Type: application/json
   "type": "MCQ",
   "options": [
     { "text": "3" },
-    { "text": "4" },
+    { "text": "4", "isCorrect": true },
     { "text": "5" }
   ],
   "answer": "4"
 }
 
-
-### 7. Update a question ---
+### 7. Update a question 
 PUT http://localhost:3000/quizzes/questions/{{QUESTION_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -173,13 +231,100 @@ Content-Type: application/json
   "answer": "6"
 }
 
-### 8. Delete a question ---
+### 8. Delete a question 
 DELETE http://localhost:3000/quizzes/questions/{{QUESTION_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### 9. Delete a quiz ---
+### 9. Delete a quiz 
 DELETE http://localhost:3000/quizzes/{{QUIZ_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
-### 10. Get quiz attempts by user ---
+### 10. Get quiz attempts by user 
 GET http://localhost:3000/quizzes/attempts/user/{{userId}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+ 
+
+
+# ### Get user course progress 
+
+# GET http://localhost:3000/progress/{{ENROLLMENT_ID}}
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+
+### Get all course progress for a user 
+GET http://localhost:3000/progress/user/{{userId}}/courses
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+# ### Get course progress overview 
+# GET http://localhost:3000/progress/course/{{COURSE_ID}}/overview
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+### Get module progress details 
+GET http://localhost:3000/progress/module/{{MODULE_ID}}/progress?enrollmentId={{ENROLLMENT_ID}}
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+###
+
+# Get lesson completion statistics
+GET http://localhost:3000/progress/lesson/{{LESSON_ID}}/completions?courseId={{COURSE_ID}}
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+# ### Get progress history for an enrollment 
+# GET http://localhost:3000/progress/history/{{ENROLLMENT_ID}}?limit=20
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+###
+
+# # Reset all progress for an enrollment
+# PUT http://localhost:3000/progress/reset/{{ENROLLMENT_ID}}
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+# ### Remove progress for a specific lesson
+# DELETE http://localhost:3000/progress/lesson/{{ENROLLMENT_ID}}/{{LESSON_ID}}
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+### Get student progress analytics 
+GET http://localhost:3000/progress/analytics/student/{{userId}}?period=month
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+# Role-Based Access Summary:
+# 
+# STUDENT:
+# - Can mark their own lessons complete/incomplete
+# - Can view their own progress and analytics
+# - Can reset their own progress
+# - Cannot access other users' data
+# 
+# INSTRUCTOR:
+# - Can view progress for their own courses
+# - Can view lesson completion statistics
+# - Cannot modify student progress
+# - Cannot access other instructors' course data
+# 
+# ADMIN:
+# - Can view all progress and analytics
+# - Can reset any user's progress
+# - Can remove any lesson progress
+# - Full access to all progress data 
