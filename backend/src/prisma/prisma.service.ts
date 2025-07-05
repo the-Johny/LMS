@@ -11,11 +11,9 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor(private configService: ConfigService) {
     const databaseUrl = configService.get<string>('DATABASE_URL');
-
     if (!databaseUrl) {
       throw new Error('DATABASE_URL is not defined in environment variables');
     }
-
     super({
       datasources: {
         db: {
