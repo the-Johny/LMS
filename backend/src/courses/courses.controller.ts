@@ -24,6 +24,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -73,7 +74,7 @@ export class CoursesController {
   update(
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserFromJwt,
   ) {
     return this.coursesService.update(id, updateCourseDto, user);
   }
@@ -82,7 +83,7 @@ export class CoursesController {
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @ApiOperation({ summary: 'Delete course by ID (Admin/Instructor only)' })
   @ApiResponse({ status: 200, description: 'Course deleted successfully' })
-  remove(@Param('id') id: string, @CurrentUser() user: any) {
+  remove(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.coursesService.remove(id, user);
   }
 
@@ -96,4 +97,6 @@ export class CoursesController {
   ) {
     return this.coursesService.assignInstructor(courseId, instructorId);
   }
+
+
 }

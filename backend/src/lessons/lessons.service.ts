@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CreateLessonDto, UpdateLessonDto } from './dto/lesson.dto';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @Injectable()
 export class LessonsService {
@@ -16,7 +17,7 @@ export class LessonsService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createLessonDto: CreateLessonDto, user: any) {
+  async create(createLessonDto: CreateLessonDto, user: UserFromJwt) {
     // Check if user is instructor of the course or admin
     const module = await this.prisma.module.findUnique({
       where: { id: createLessonDto.moduleId },
@@ -83,7 +84,7 @@ export class LessonsService {
     return lesson;
   }
 
-  async update(id: string, updateLessonDto: UpdateLessonDto, user: any) {
+  async update(id: string, updateLessonDto: UpdateLessonDto, user: UserFromJwt) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
       include: { module: { include: { course: true } } },
@@ -129,7 +130,7 @@ export class LessonsService {
     });
   }
 
-  async remove(id: string, user: any) {
+  async remove(id: string, user: UserFromJwt) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
       include: { module: { include: { course: true } } },

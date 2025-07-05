@@ -2,6 +2,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @Injectable()
 export class EnrollmentsService {
@@ -52,7 +53,7 @@ export class EnrollmentsService {
   }
 
   // Certificates
-  async getCertificatesByUser(userId: string, user: any) {
+  async getCertificatesByUser(userId: string, user: UserFromJwt) {
     console.log('EnrollmentsService.getCertificatesByUser', { userId, user });
     
     // Students can only see their own certificates

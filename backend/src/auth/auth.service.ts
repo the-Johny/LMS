@@ -6,7 +6,8 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto, LoginDto, AuthResponseDto } from './dto/auth.dto';
-import { JwtPayload } from './interfaces/auth.interface';
+import { JwtPayload, UserFromJwt } from './interfaces/auth.interface';
+import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,7 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<{ id: string; name: string; email: string; role: Role } | null> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;

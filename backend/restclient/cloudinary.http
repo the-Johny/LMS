@@ -52,7 +52,7 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
 
 {
-  "url": "https://example.com/certificate.pdf",
+  "url": "https://www.cs.toronto.edu/~mashiyat/csc309/Lectures/javascript.pdf",
   "folder": "certificates",
   "publicId": "certificate_{{CERTIFICATE_ID}}"
 } 

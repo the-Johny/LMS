@@ -8,6 +8,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Quizzes')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -28,7 +29,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a new quiz (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Quiz created successfully' })
-  createQuiz(@Body() data: CreateQuizDto, @CurrentUser() user: any) {
+  createQuiz(@Body() data: CreateQuizDto, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.createQuiz(data, user);
   }
 
@@ -36,7 +37,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Update a quiz (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Quiz updated successfully' })
-  updateQuiz(@Param('id') id: string, @Body() data: UpdateQuizDto, @CurrentUser() user: any) {
+  updateQuiz(@Param('id') id: string, @Body() data: UpdateQuizDto, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.updateQuiz(id, data, user);
   }
 
@@ -44,7 +45,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Delete a quiz (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Quiz deleted successfully' })
-  deleteQuiz(@Param('id') id: string, @CurrentUser() user: any) {
+  deleteQuiz(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.deleteQuiz(id, user);
   }
 
@@ -60,7 +61,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a new question (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Question created successfully' })
-  createQuestion(@Body() data: CreateQuestionDto, @CurrentUser() user: any) {
+  createQuestion(@Body() data: CreateQuestionDto, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.createQuestion(data, user);
   }
 
@@ -68,7 +69,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Update a question (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Question updated successfully' })
-  updateQuestion(@Param('id') id: string, @Body() data: UpdateQuestionDto, @CurrentUser() user: any) {
+  updateQuestion(@Param('id') id: string, @Body() data: UpdateQuestionDto, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.updateQuestion(id, data, user);
   }
 
@@ -76,7 +77,7 @@ export class QuizzesController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Delete a question (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Question deleted successfully' })
-  deleteQuestion(@Param('id') id: string, @CurrentUser() user: any) {
+  deleteQuestion(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.deleteQuestion(id, user);
   }
 
@@ -84,7 +85,7 @@ export class QuizzesController {
   @Get('attempts/user/:userId')
   @ApiOperation({ summary: 'Get quiz attempts by user (Student can see own attempts, Instructor/Admin can see any attempts)' })
   @ApiResponse({ status: 200, description: 'Quiz attempts retrieved successfully' })
-  getAttemptsByUser(@Param('userId') userId: string, @CurrentUser() user: any) {
+  getAttemptsByUser(@Param('userId') userId: string, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.getAttemptsByUser(userId, user);
   }
 
@@ -92,7 +93,7 @@ export class QuizzesController {
   @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a quiz attempt (Student can attempt quizzes they are enrolled in, Instructor/Admin can attempt any quiz)' })
   @ApiResponse({ status: 201, description: 'Quiz attempt created successfully' })
-  createAttempt(@Body() data: CreateAttemptDto, @CurrentUser() user: any) {
+  createAttempt(@Body() data: CreateAttemptDto, @CurrentUser() user: UserFromJwt) {
     return this.quizzesService.createAttempt(data, user);
   }
 }

@@ -75,8 +75,8 @@ Content-Type: application/json
 
 {
   "title": "Introduction to Programming",
-  "contentUrl": "https://example.com/video.mp4",
-  "type": "VIDEO",
+  "contentUrl": "https://www.cs.toronto.edu/~mashiyat/csc309/Lectures/javascript.pdf",
+  "type": "pdf",
   "order": 1,
   "moduleId": "{{MODULE_ID}}",
   "isVisible": true

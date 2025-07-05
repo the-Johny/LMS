@@ -34,7 +34,7 @@ export class CloudinaryService {
   async uploadFromUrl(url: string, folder: string, publicId?: string): Promise<UploadApiResponse> {
     console.log('CloudinaryService.uploadFromUrl', { url, folder, publicId });
     
-    const options: any = { folder };
+    const options: Record<string, unknown> = { folder };
     if (publicId) {
       options.public_id = publicId;
     }
@@ -57,22 +57,22 @@ export class CloudinaryService {
     return this.uploadFromUrl(url, 'certificates', `certificate_${certificateId}`);
   }
 
-  async deleteFile(publicId: string): Promise<any> {
+  async deleteFile(publicId: string): Promise<{ result: string }> {
     console.log('CloudinaryService.deleteFile', { publicId });
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, result) => {
         if (error) return reject(error);
-        resolve(result);
+        resolve({ result });
       });
     });
   }
 
-  async deleteLessonContent(lessonId: string): Promise<any> {
+  async deleteLessonContent(lessonId: string): Promise<{ result: string }> {
     console.log('CloudinaryService.deleteLessonContent', { lessonId });
     return this.deleteFile(`lessons/lesson_${lessonId}`);
   }
 
-  async deleteCertificate(certificateId: string): Promise<any> {
+  async deleteCertificate(certificateId: string): Promise<{ result: string }> {
     console.log('CloudinaryService.deleteCertificate', { certificateId });
     return this.deleteFile(`certificates/certificate_${certificateId}`);
   }

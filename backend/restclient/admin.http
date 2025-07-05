@@ -49,8 +49,7 @@ Content-Type: application/json
   "name": "Updated Name"
 }
 
-### Get student progress GET http://localhost:3000/analytics/student/{{USER_ID}}
-Authorization: Bearer {{ADMIN_TOKEN}}
+
 
 ### Get popular courses 
 GET http://localhost:3000/analytics/popular-courses

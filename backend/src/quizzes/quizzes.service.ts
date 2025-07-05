@@ -7,6 +7,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
+import { CreateQuizDto, UpdateQuizDto, CreateQuestionDto, UpdateQuestionDto, CreateAttemptDto } from './dtos/quizzes.dto';
 
 
 @Injectable()
@@ -18,7 +20,7 @@ export class QuizzesService {
     console.log('QuizzesService.getQuizzesByCourse', { courseId });
     return this.prisma.quiz.findMany({ where: { courseId } });
   }
-  async createQuiz(data: any, user: any) {
+  async createQuiz(data: CreateQuizDto, user: UserFromJwt) {
     console.log('QuizzesService.createQuiz', { data });
     
     // Check if user is instructor of the course or admin
@@ -36,7 +38,7 @@ export class QuizzesService {
 
     return this.prisma.quiz.create({ data });
   }
-  async updateQuiz(id: string, data: any, user: any) {
+  async updateQuiz(id: string, data: UpdateQuizDto, user: UserFromJwt) {
     console.log('QuizzesService.updateQuiz', { id, data });
     
     const quiz = await this.prisma.quiz.findUnique({
@@ -54,7 +56,7 @@ export class QuizzesService {
 
     return this.prisma.quiz.update({ where: { id }, data });
   }
-  async deleteQuiz(id: string, user: any) {
+  async deleteQuiz(id: string, user: UserFromJwt) {
     console.log('QuizzesService.deleteQuiz', { id });
     
     const quiz = await this.prisma.quiz.findUnique({
@@ -78,7 +80,7 @@ export class QuizzesService {
     console.log('QuizzesService.getQuestionsByQuiz', { quizId });
     return this.prisma.question.findMany({ where: { quizId } });
   }
-async createQuestion(data: any, user: any) {
+async createQuestion(data: CreateQuestionDto, user: UserFromJwt) {
   const quiz = await this.prisma.quiz.findUnique({
     where: { id: data.quizId },
     include: { course: true },
@@ -92,10 +94,10 @@ async createQuestion(data: any, user: any) {
     throw new ForbiddenException('You can only create questions for your own courses');
   }
 
-  const formattedOptions = data.options.map((opt: any) => ({
-    value: opt.text, 
-    isCorrect: opt.isCorrect ?? false,
-  }));
+      const formattedOptions = data.options.map((opt) => ({
+      value: opt.value, 
+      isCorrect: opt.isCorrect ?? false,
+    }));
 
   return this.prisma.question.create({
     data: {
@@ -110,7 +112,7 @@ async createQuestion(data: any, user: any) {
   });
 }
 
-  async updateQuestion(id: string, data: any, user: any) {
+  async updateQuestion(id: string, data: UpdateQuestionDto, user: UserFromJwt) {
     console.log('QuizzesService.updateQuestion', { id, data });
     
     const question = await this.prisma.question.findUnique({
@@ -126,9 +128,10 @@ async createQuestion(data: any, user: any) {
       throw new ForbiddenException('You can only update questions for your own courses');
     }
 
-    return this.prisma.question.update({ where: { id }, data });
+    const { quizId, options, ...updateData } = data;
+    return this.prisma.question.update({ where: { id }, data: updateData });
   }
-  async deleteQuestion(id: string, user: any) {
+  async deleteQuestion(id: string, user: UserFromJwt) {
     console.log('QuizzesService.deleteQuestion', { id });
     
     const question = await this.prisma.question.findUnique({
@@ -148,7 +151,7 @@ async createQuestion(data: any, user: any) {
   }
 
   // Attempts
-  async getAttemptsByUser(userId: string, user: any) {
+  async getAttemptsByUser(userId: string, user: UserFromJwt) {
     console.log('QuizzesService.getAttemptsByUser', { userId, user });
     
     // Students can only see their own attempts
@@ -193,7 +196,7 @@ async createQuestion(data: any, user: any) {
       }
     });
   }
-  async createAttempt(data: { quizId: string; userId: string; answers: { questionId: string; answer: string }[] }, user: any) {
+  async createAttempt(data: CreateAttemptDto, user: UserFromJwt) {
     console.log('QuizzesService.createAttempt', { data, user });
     const { quizId, userId, answers } = data;
     
@@ -243,7 +246,13 @@ async createQuestion(data: any, user: any) {
       answerMap.set(ans.questionId, ans.answer);
     }
     let correct = 0;
-    const feedback: any[] = [];
+    const feedback: Array<{
+      questionId: string;
+      correct: boolean;
+      userAnswer: string | undefined;
+      correctAnswer: string | null;
+      explanation: string;
+    }> = [];
     for (const q of questions) {
       const userAnswer = answerMap.get(q.id);
       let isCorrect = false;
