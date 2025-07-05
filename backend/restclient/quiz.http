@@ -4,10 +4,6 @@
 # @quizId=0fd1a290-7e2e-43fd-90e8-1ac2d3e43257
 # @userId=5d6df235-ebbb-464a-a3e3-d72fceb57d52
 
-// =============================
-// Quiz API Testing Flow
-// =============================
-
 // --- 1. Set Variables ---
 @courseId=6bb881f0-144f-4e8e-abdd-aa761f967492
 @quizId=5fb871e2-dfc4-4349-861d-aa3a0b9eccd2
