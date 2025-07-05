@@ -1,0 +1,424 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@authUrl = {{baseUrl}}/auth
+@contentType = application/json
+
+### User Registration
+# @name register
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Extract user data from registration response
+@userId = {{register.response.body.user.id}}
+
+### Register Instructor
+# @name registerInstructor
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "InstructorPass456!",
+  "role": "INSTRUCTOR"
+}
+
+### Register Admin
+# @name registerAdmin
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "AdminPass789!",
+  "role": "ADMIN"
+}
+
+### User Login with Email
+# @name login
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!"
+}
+
+### Extract tokens from login response
+@accessToken = {{login.response.body.accessToken}}
+@refreshToken = {{login.response.body.refreshToken}}
+
+### Login with Username (if supported)
+# @name loginUsername
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "john.doe@example.com",
+  "password": "SecurePass123!"
+}
+
+### Login Instructor
+# @name loginInstructor
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "jane.smith@example.com",
+  "password": "InstructorPass456!"
+}
+
+### Extract instructor tokens
+@instructorToken = {{loginInstructor.response.body.accessToken}}
+
+### Login Admin
+# @name loginAdmin
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@example.com",
+  "password": "AdminPass789!"
+}
+
+### Extract admin tokens
+@adminToken = {{loginAdmin.response.body.accessToken}}
+
+### Get Current User Profile
+GET {{authUrl}}/profile
+Authorization: Bearer {{accessToken}}
+
+### Get Current User (Alternative endpoint)
+GET {{authUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+### Refresh Access Token
+# @name refreshToken
+POST {{authUrl}}/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Update token from refresh response
+@newAccessToken = {{refreshToken.response.body.accessToken}}
+
+### Logout
+POST {{authUrl}}/logout
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### Logout from All Devices
+POST {{authUrl}}/logout-all
+Authorization: Bearer {{accessToken}}
+
+### Forgot Password
+# @name forgotPassword
+POST {{authUrl}}/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com"
+}
+
+### Reset Password
+POST {{authUrl}}/reset-password
+Content-Type: {{contentType}}
+
+{
+  "token": "password-reset-token-here",
+  "newPassword": "NewSecurePass123!",
+  "email": "john.doe@example.com"
+}
+
+### Change Password (Authenticated)
+POST {{authUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "SecurePass123!",
+  "newPassword": "UpdatedPass456!"
+}
+
+### Send Email Verification
+POST {{authUrl}}/send-verification
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com"
+}
+
+### Verify Email
+POST {{authUrl}}/verify-email
+Content-Type: {{contentType}}
+
+{
+  "token": "email-verification-token-here",
+  "email": "john.doe@example.com"
+}
+
+### Resend Verification Email
+POST {{authUrl}}/resend-verification
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com"
+}
+
+### Check Email Availability
+GET {{authUrl}}/check-email?email=newuser@example.com
+
+### Validate Token
+GET {{authUrl}}/validate-token
+Authorization: Bearer {{accessToken}}
+
+### Get User Permissions
+GET {{authUrl}}/permissions
+Authorization: Bearer {{accessToken}}
+
+### Get User Roles
+GET {{authUrl}}/roles
+Authorization: Bearer {{accessToken}}
+
+### Update Profile
+PATCH {{authUrl}}/profile
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "John Updated",
+  "email": "john.updated@example.com"
+}
+
+### Deactivate Account
+POST {{authUrl}}/deactivate
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "password": "SecurePass123!"
+}
+
+### Reactivate Account
+POST {{authUrl}}/reactivate
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!"
+}
+
+### Error Cases Testing
+
+### Login with Invalid Email
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "nonexistent@example.com",
+  "password": "SecurePass123!"
+}
+
+### Login with Invalid Password
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "WrongPassword"
+}
+
+### Register with Existing Email
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate User",
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Register with Invalid Email Format
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Invalid Email User",
+  "email": "invalid-email-format",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Register with Weak Password
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Weak Password User",
+  "email": "weak@example.com",
+  "password": "123",
+  "role": "STUDENT"
+}
+
+### Register with Invalid Role
+POST {{authUrl}}/register
+Content-Type: {{contentType}}
+
+{
+  "name": "Invalid Role User",
+  "email": "invalid.role@example.com",
+  "password": "SecurePass123!",
+  "role": "INVALID_ROLE"
+}
+
+### Access Protected Route without Token
+GET {{authUrl}}/profile
+
+### Access Protected Route with Invalid Token
+GET {{authUrl}}/profile
+Authorization: Bearer invalid-token-here
+
+### Access Protected Route with Expired Token
+GET {{authUrl}}/profile
+Authorization: Bearer expired-token-here
+
+### Refresh with Invalid Token
+POST {{authUrl}}/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "invalid-refresh-token"
+}
+
+### Change Password with Wrong Current Password
+POST {{authUrl}}/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "WrongCurrentPassword",
+  "newPassword": "NewSecurePass456!"
+}
+
+### Reset Password with Invalid Token
+POST {{authUrl}}/reset-password
+Content-Type: {{contentType}}
+
+{
+  "token": "invalid-reset-token",
+  "newPassword": "NewSecurePass123!",
+  "email": "john.doe@example.com"
+}
+
+### Verify Email with Invalid Token
+POST {{authUrl}}/verify-email
+Content-Type: {{contentType}}
+
+{
+  "token": "invalid-verification-token",
+  "email": "john.doe@example.com"
+}
+
+### Role-based Access Testing
+
+### Student trying to access admin endpoint
+GET {{authUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+
+### Instructor accessing instructor endpoint
+GET {{authUrl}}/instructor/dashboard
+Authorization: Bearer {{instructorToken}}
+
+### Admin accessing admin endpoint
+GET {{authUrl}}/admin/dashboard
+Authorization: Bearer {{adminToken}}
+
+### Security Testing
+
+### Test Rate Limiting (Multiple rapid requests)
+POST {{authUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "WrongPassword"
+}
+
+### OAuth2 Endpoints (if implemented)
+
+### OAuth2 Authorization
+GET {{authUrl}}/oauth2/authorize?response_type=code&client_id=your-client-id&redirect_uri=http://localhost:3000/callback&scope=read%20write&state=random-state-string
+
+### OAuth2 Token Exchange
+POST {{authUrl}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=authorization_code&code=authorization-code-here&redirect_uri=http://localhost:3000/callback&client_id=your-client-id&client_secret=your-client-secret
+
+### OAuth2 Client Credentials
+POST {{authUrl}}/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id=your-client-id&client_secret=your-client-secret&scope=read%20write
+
+### Two-Factor Authentication (if implemented)
+
+### Enable 2FA
+POST {{authUrl}}/2fa/enable
+Authorization: Bearer {{accessToken}}
+
+### Verify 2FA Setup
+POST {{authUrl}}/2fa/verify-setup
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "123456"
+}
+
+### Login with 2FA
+POST {{authUrl}}/login-2fa
+Content-Type: {{contentType}}
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!",
+  "code": "123456"
+}
+
+### Disable 2FA
+POST {{authUrl}}/2fa/disable
+Authorization: Bearer {{accessToken}}
+Content-Type: {{contentType}}
+
+{
+  "password": "SecurePass123!"
+}
+
+### Health Check
+GET {{authUrl}}/health
+
+### API Documentation
+GET {{authUrl}}/docs
+
+### Test Data Cleanup (for testing purposes)
+
+### Delete Test Users (Admin only)
+DELETE {{authUrl}}/test-users
+Authorization: Bearer {{adminToken}}

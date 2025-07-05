@@ -1,0 +1,303 @@
+### Variables
+@baseUrl = http://localhost:3000/api
+@userUrl = {{baseUrl}}/users
+@contentType = application/json
+@token = your-jwt-token-here
+
+### Create User
+# @name createUser
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Create Instructor
+# @name createInstructor
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Jane Smith",
+  "email": "jane.smith@example.com",
+  "password": "InstructorPass456!",
+  "role": "INSTRUCTOR"
+}
+
+### Create Admin
+# @name createAdmin
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Admin User",
+  "email": "admin@example.com",
+  "password": "AdminPass789!",
+  "role": "ADMIN",
+  "isEmailVerified": true
+}
+
+### Get All Users (with default pagination)
+GET {{userUrl}}
+Authorization: Bearer {{token}}
+
+### Get Users with Search and Filters
+GET {{userUrl}}?search=john&role=STUDENT&isEmailVerified=true&page=1&limit=10&sortBy=createdAt&sortOrder=desc
+Authorization: Bearer {{token}}
+
+### Get Users by Role - Students
+GET {{userUrl}}/by-role/STUDENT
+Authorization: Bearer {{token}}
+
+### Get Users by Role - Instructors
+GET {{userUrl}}/by-role/INSTRUCTOR
+Authorization: Bearer {{token}}
+
+### Get Users by Role - Admins
+GET {{userUrl}}/by-role/ADMIN
+Authorization: Bearer {{token}}
+
+### Get User Statistics
+GET {{userUrl}}/stats
+Authorization: Bearer {{token}}
+
+### Get Current User Profile
+GET {{userUrl}}/profile
+Authorization: Bearer {{token}}
+
+### Get User by ID
+GET {{userUrl}}/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+
+### Get User with Relations/Details
+GET {{userUrl}}/550e8400-e29b-41d4-a716-446655440000/details
+Authorization: Bearer {{token}}
+
+### Get User by Email
+GET {{userUrl}}/email/john.doe@example.com
+Authorization: Bearer {{token}}
+
+### Update User
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "John Updated",
+  "email": "john.updated@example.com"
+}
+
+### Update User Role (Admin only)
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "role": "INSTRUCTOR"
+}
+
+### Change User Password
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-446655440000/change-password
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "SecurePass123!",
+  "newPassword": "NewSecurePass456!"
+}
+
+### Verify User Email
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-446655440000/verify-email
+Authorization: Bearer {{token}}
+
+### Bulk Update Users
+PATCH {{userUrl}}/bulk-update
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "userIds": [
+    "550e8400-e29b-41d4-a716-446655440000",
+    "550e8400-e29b-41d4-a716-446655440001"
+  ],
+  "isEmailVerified": true
+}
+
+### Bulk Update Users - Change Role
+PATCH {{userUrl}}/bulk-update
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "userIds": [
+    "550e8400-e29b-41d4-a716-446655440000",
+    "550e8400-e29b-41d4-a716-446655440001"
+  ],
+  "role": "STUDENT"
+}
+
+### Delete User
+DELETE {{userUrl}}/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+
+### Test Error Cases
+
+### Create User with Existing Email
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Duplicate User",
+  "email": "john.doe@example.com",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Create User with Invalid Email
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Invalid User",
+  "email": "invalid-email",
+  "password": "SecurePass123!",
+  "role": "STUDENT"
+}
+
+### Create User with Short Password
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Weak Password User",
+  "email": "weak@example.com",
+  "password": "123",
+  "role": "STUDENT"
+}
+
+### Create User with Invalid Role
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Invalid Role User",
+  "email": "invalid.role@example.com",
+  "password": "SecurePass123!",
+  "role": "INVALID_ROLE"
+}
+
+### Get Non-existent User
+GET {{userUrl}}/550e8400-e29b-41d4-a716-999999999999
+Authorization: Bearer {{token}}
+
+### Update Non-existent User
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-999999999999
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Updated Name"
+}
+
+### Change Password with Wrong Current Password
+PATCH {{userUrl}}/550e8400-e29b-41d4-a716-446655440000/change-password
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "WrongPassword",
+  "newPassword": "NewSecurePass456!"
+}
+
+### Advanced Queries
+
+### Search Users by Name
+GET {{userUrl}}?search=john
+Authorization: Bearer {{token}}
+
+### Search Users by Email
+GET {{userUrl}}?search=@example.com
+Authorization: Bearer {{token}}
+
+### Get Unverified Users
+GET {{userUrl}}?isEmailVerified=false
+Authorization: Bearer {{token}}
+
+### Get Users with Pagination
+GET {{userUrl}}?page=2&limit=5
+Authorization: Bearer {{token}}
+
+### Get Users Sorted by Name
+GET {{userUrl}}?sortBy=name&sortOrder=asc
+Authorization: Bearer {{token}}
+
+### Get Users Sorted by Creation Date
+GET {{userUrl}}?sortBy=createdAt&sortOrder=desc
+Authorization: Bearer {{token}}
+
+### Complex Query - Verified Instructors
+GET {{userUrl}}?role=INSTRUCTOR&isEmailVerified=true&sortBy=name&sortOrder=asc
+Authorization: Bearer {{token}}
+
+### Test Data Creation Script
+
+### Create Multiple Test Users
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Student One",
+  "email": "student1@example.com",
+  "password": "StudentPass123!",
+  "role": "STUDENT"
+}
+
+###
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Student Two",
+  "email": "student2@example.com",
+  "password": "StudentPass123!",
+  "role": "STUDENT"
+}
+
+###
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Instructor One",
+  "email": "instructor1@example.com",
+  "password": "InstructorPass123!",
+  "role": "INSTRUCTOR"
+}
+
+###
+POST {{userUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Instructor Two",
+  "email": "instructor2@example.com",
+  "password": "InstructorPass123!",
+  "role": "INSTRUCTOR"
+}
+
+### Performance Testing
+
+### Get Large Dataset
+GET {{userUrl}}?limit=100
+Authorization: Bearer {{token}}
+
+### Test Without Authentication (Should Fail)
+GET {{userUrl}}
+
+### Test with Invalid Token (Should Fail)
+GET {{userUrl}}
+Authorization: Bearer invalid-token-here

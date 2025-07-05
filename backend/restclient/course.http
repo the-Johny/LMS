@@ -1,0 +1,391 @@
+# Course REST API Client
+# Base URL - Update this to match your server
+@baseUrl = http://localhost:3000/api
+@contentType = application/json
+
+# Variables for testing - Update these with actual values
+@courseId = 550e8400-e29b-41d4-a716-446655440000
+@instructorId = 550e8400-e29b-41d4-a716-446655440001
+@authToken = your-jwt-token-here
+
+### Variables for creating test course
+@testCourseTitle = Advanced JavaScript Development
+@testCourseDescription = Master advanced JavaScript concepts including async programming, design patterns, and modern ES6+ features
+
+###
+
+# ============================================
+# COURSE ENDPOINTS
+# ============================================
+
+### 1. Create a new course
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "{{testCourseTitle}}",
+  "description": "{{testCourseDescription}}",
+  "objectives": [
+    "Master async/await patterns",
+    "Understand closures and scope",
+    "Learn modern ES6+ features",
+    "Implement design patterns"
+  ],
+  "prerequisites": [
+    "Basic JavaScript knowledge",
+    "Understanding of functions and variables",
+    "Familiarity with HTML/CSS"
+  ],
+  "level": "INTERMEDIATE",
+  "category": "PROGRAMMING",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+### 2. Get all courses (with default pagination)
+GET {{baseUrl}}/courses
+Authorization: Bearer {{authToken}}
+
+###
+
+### 3. Get all courses with pagination and filters
+GET {{baseUrl}}/courses?page=1&limit=5&category=PROGRAMMING&level=INTERMEDIATE&isPublished=true
+Authorization: Bearer {{authToken}}
+
+###
+
+### 4. Search courses by title or description
+GET {{baseUrl}}/courses?search=javascript&page=1&limit=10
+Authorization: Bearer {{authToken}}
+
+###
+
+### 5. Get courses by specific instructor
+GET {{baseUrl}}/courses?instructorId={{instructorId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 6. Get course by ID (with full details including modules)
+GET {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### 7. Update course (partial update)
+PUT {{baseUrl}}/courses/{{courseId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Advanced JavaScript Development - Updated",
+  "description": "Updated description: Master advanced JavaScript concepts with hands-on projects",
+  "isPublished": true,
+  "objectives": [
+    "Master async/await patterns",
+    "Understand closures and scope",
+    "Learn modern ES6+ features",
+    "Implement design patterns",
+    "Build real-world applications"
+  ]
+}
+
+###
+
+### 8. Update course - Publish a course
+PUT {{baseUrl}}/courses/{{courseId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "isPublished": true
+}
+
+###
+
+### 9. Update course - Unpublish a course
+PUT {{baseUrl}}/courses/{{courseId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "isPublished": false
+}
+
+###
+
+### 10. Update course - Change level and category
+PUT {{baseUrl}}/courses/{{courseId}}
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "level": "ADVANCED",
+  "category": "PROGRAMMING"
+}
+
+###
+
+### 11. Get courses by instructor ID (alternative endpoint)
+GET {{baseUrl}}/instructors/{{instructorId}}/courses
+Authorization: Bearer {{authToken}}
+
+###
+
+### 12. Delete course
+DELETE {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================
+# FILTERING AND SEARCH EXAMPLES
+# ============================================
+
+### Get only published courses
+GET {{baseUrl}}/courses?isPublished=true
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get courses by category
+GET {{baseUrl}}/courses?category=PROGRAMMING
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get courses by level
+GET {{baseUrl}}/courses?level=BEGINNER
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get courses with multiple filters
+GET {{baseUrl}}/courses?category=PROGRAMMING&level=INTERMEDIATE&isPublished=true&page=1&limit=5
+Authorization: Bearer {{authToken}}
+
+###
+
+### Search for courses containing "react"
+GET {{baseUrl}}/courses?search=react
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get courses with large page size
+GET {{baseUrl}}/courses?page=1&limit=50
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================
+# BULK OPERATIONS / BATCH TESTING
+# ============================================
+
+### Create multiple courses for testing
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "React Fundamentals",
+  "description": "Learn the basics of React including components, state, and props",
+  "objectives": [
+    "Understand React components",
+    "Learn state management",
+    "Master props and event handling"
+  ],
+  "prerequisites": [
+    "Basic JavaScript knowledge",
+    "Understanding of HTML/CSS"
+  ],
+  "level": "BEGINNER",
+  "category": "PROGRAMMING",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+### Create another test course
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Digital Marketing Strategy",
+  "description": "Comprehensive guide to digital marketing including SEO, social media, and analytics",
+  "objectives": [
+    "Master SEO techniques",
+    "Learn social media marketing",
+    "Understand analytics and conversion"
+  ],
+  "prerequisites": [
+    "Basic marketing knowledge"
+  ],
+  "level": "INTERMEDIATE",
+  "category": "MARKETING",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+### Create a design course
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "UI/UX Design Principles",
+  "description": "Learn fundamental design principles for creating beautiful and functional user interfaces",
+  "objectives": [
+    "Understand design theory",
+    "Learn color theory and typography",
+    "Master user experience principles"
+  ],
+  "prerequisites": [
+    "Basic computer skills"
+  ],
+  "level": "BEGINNER",
+  "category": "DESIGN",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+# ============================================
+# ERROR TESTING
+# ============================================
+
+### Test with invalid course ID (should return 404)
+GET {{baseUrl}}/courses/invalid-id
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test creating course with missing required fields (should return 400)
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Incomplete Course"
+  // Missing required fields: description, instructorId
+}
+
+###
+
+### Test updating non-existent course (should return 404)
+PUT {{baseUrl}}/courses/00000000-0000-0000-0000-000000000000
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Updated Title"
+}
+
+###
+
+### Test deleting non-existent course (should return 404)
+DELETE {{baseUrl}}/courses/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test with invalid query parameters
+GET {{baseUrl}}/courses?page=invalid&limit=not-a-number
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test with invalid enum values
+GET {{baseUrl}}/courses?category=INVALID_CATEGORY&level=INVALID_LEVEL
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================
+# EDGE CASES
+# ============================================
+
+### Test with empty search query
+GET {{baseUrl}}/courses?search=
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test with very large page number
+GET {{baseUrl}}/courses?page=999999
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test with page size of 0
+GET {{baseUrl}}/courses?limit=0
+Authorization: Bearer {{authToken}}
+
+###
+
+### Test with negative page number
+GET {{baseUrl}}/courses?page=-1
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================
+# SPECIAL SCENARIOS
+# ============================================
+
+### Get courses without authentication (should return 401 if auth is required)
+GET {{baseUrl}}/courses
+
+###
+
+### Create course with empty arrays
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Test Course with Empty Arrays",
+  "description": "Testing with empty objectives and prerequisites",
+  "objectives": [],
+  "prerequisites": [],
+  "level": "BEGINNER",
+  "category": "OTHER",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+### Create course with very long title and description
+POST {{baseUrl}}/courses
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "This is a very long course title that might exceed normal limits and should be tested to ensure the system handles it properly without breaking or causing issues",
+  "description": "This is an extremely long course description that contains multiple paragraphs and detailed information about the course content, objectives, prerequisites, and expected outcomes. It's designed to test how the system handles lengthy text fields and whether there are any character limits or performance issues when dealing with substantial amounts of text content in the course description field.",
+  "objectives": [
+    "Very long objective that describes in detail what students will learn",
+    "Another comprehensive objective with extensive explanation",
+    "A third objective that goes into great detail about the learning outcomes"
+  ],
+  "prerequisites": [
+    "Extensive prerequisite knowledge requirement with detailed explanation",
+    "Another detailed prerequisite with comprehensive requirements"
+  ],
+  "level": "ADVANCED",
+  "category": "PROGRAMMING",
+  "instructorId": "{{instructorId}}"
+}
+
+###
+
+# ============================================
+# CLEANUP
+# ============================================
+
+### Note: Remember to clean up test data after testing
+### Use the DELETE endpoint to remove test courses created during testing
