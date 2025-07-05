@@ -18,6 +18,7 @@ export class CloudinaryService {
     buffer: Buffer,
     folder: string,
   ): Promise<UploadApiResponse> {
+    console.log('CloudinaryService.uploadFileBuffer', { folder });
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder },

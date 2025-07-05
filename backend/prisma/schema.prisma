@@ -80,8 +80,8 @@ model Course {
   level         Level
   category      Category
   isPublished   Boolean  @default(false)
-  instructor    User     @relation("InstructorCourses", fields: [instructorId], references: [id])
-  instructorId  String
+  instructor    User?    @relation("InstructorCourses", fields: [instructorId], references: [id])
+  instructorId  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -141,13 +141,8 @@ model Progress {
   User         User?      @relation(fields: [userId], references: [id])
   userId       String?
 
-<<<<<<< Updated upstream
-  @@unique([enrollmentId, lessonId]) 
-=======
   @@unique([enrollmentId, lessonId])
->>>>>>> Stashed changes
 }
-
 
 model LessonCompletion {
   id          String   @id @default(uuid())

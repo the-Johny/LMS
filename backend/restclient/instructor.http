@@ -1,0 +1,185 @@
+@INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTcxNjE3MywiZXhwIjoxNzUxODAyNTczfQ.TmnRfERlPMABnbydLIWyydnh50vq3qR4FUr0WEqx5Hw
+
+@COURSE_ID=2dface0f-7780-43b8-90c4-318dfe73da20
+@courseId=2dface0f-7780-43b8-90c4-318dfe73da20
+@MODULE_ID=8018ccea-1e2d-4ed1-9da1-8ab5670c220c
+@LESSON_ID=
+@ENROLLMENT_ID=
+@instructorId=9d5bea6b-c669-43e8-bebb-450950413313
+@userId=
+
+@QUIZ_ID=
+
+@QUESTION_ID=
+
+### Login as instructor
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "kimutaibrian922@gmail.com",
+  "password": "instructor123"
+}
+
+
+
+### ===== INSTRUCTOR ENDPOINTS =====
+
+### Instructor creates a course
+POST http://localhost:3000/courses
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "My Course",
+  "description": "A course created by instructor.",
+  "objectives": ["Learn basics"],
+  "prerequisites": ["None"],
+  "level": "BEGINNER",
+  "category": "PROGRAMMING",
+  "isPublished": false
+}
+
+### Instructor creates a module
+POST http://localhost:3000/modules
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Introduction Module",
+  "courseId": "{{COURSE_ID}}"
+}
+
+PUT http://localhost:3000/content/modules/{{MODULE_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Updated Module Title"
+}
+
+###
+DELETE http://localhost:3000/content/modules/{{MODULE_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+###Get modules by course
+GET http://localhost:3000/content/courses/{{courseId}}/modules
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Instructor creates a lesson
+POST http://localhost:3000/lessons
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Introduction to Programming",
+  "contentUrl": "https://example.com/video.mp4",
+  "type": "VIDEO",
+  "order": 1,
+  "moduleId": "{{MODULE_ID}}",
+  "isVisible": true
+}
+
+
+###GET LESSONS 
+GET http://localhost:3000/content/modules/{{MODULE_ID}}/lessons
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+###DELETE A LESSON 
+DELETE http://localhost:3000/content/lessons/{{LESSON_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Instructor gets modules for their course
+GET http://localhost:3000/modules/course/{{COURSE_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Get modules by course (Admin/Instructor only)
+GET http://localhost:3000/content/courses/{{courseId}}/modules
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Instructor gets lessons for their module
+GET http://localhost:3000/lessons/module/{{MODULE_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### Issue a certificate (Admin/Instructor only)
+POST http://localhost:3000/enrollments/certificates
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "{{courseId}}",
+  "certificateUrl": "https://example.com/certificate.pdf"
+}
+
+
+### Get enrollments by course (Admin/Instructor only)
+GET http://localhost:3000/enrollments/course/{{courseId}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### 2. Get all quizzes for a course ---
+GET http://localhost:3000/quizzes/course/{{courseId}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+### 3. Create a new quiz ---
+POST http://localhost:3000/quizzes
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Quiz 1",
+  "courseId": "{{COURSE_ID}}",
+  "timeLimit": 30
+}
+
+### 4. Update a quiz ---
+PUT http://localhost:3000/quizzes/{{QUIZ_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Updated Quiz Title",
+  "timeLimit": 45
+}
+
+
+### 6. Create a question for the quiz ---
+POST http://localhost:3000/quizzes/questions
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "quizId": "{{QUIZ_ID}}",
+  "question": "What is 2+2?",
+  "type": "MCQ",
+  "options": [
+    { "text": "3" },
+    { "text": "4" },
+    { "text": "5" }
+  ],
+  "answer": "4"
+}
+
+
+### 7. Update a question ---
+PUT http://localhost:3000/quizzes/questions/{{QUESTION_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "question": "What is 3+3?",
+  "answer": "6"
+}
+
+### 8. Delete a question ---
+DELETE http://localhost:3000/quizzes/questions/{{QUESTION_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### 9. Delete a quiz ---
+DELETE http://localhost:3000/quizzes/{{QUIZ_ID}}
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+### 10. Get quiz attempts by user ---
+GET http://localhost:3000/quizzes/attempts/user/{{userId}}

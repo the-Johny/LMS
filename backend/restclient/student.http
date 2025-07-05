@@ -1,0 +1,105 @@
+
+@STUDENT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5M2JiYzhmMS0zN2IyLTQwYTYtYTkyYy01NzIzZGFjZmYxZTUiLCJlbWFpbCI6ImJyaWFua3VydXVpMzc2OEBnbWFpbC5jb20iLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTcxNjIzOSwiZXhwIjoxNzUxODAyNjM5fQ.reuFdfWxTJIh8M4bAeAo31Q7UZ1Phj8VwCGhmqyABk0
+@COURSE_ID=2dface0f-7780-43b8-90c4-318dfe73da20
+@courseId=2dface0f-7780-43b8-90c4-318dfe73da20
+@MODULE_ID=8018ccea-1e2d-4ed1-9da1-8ab5670c220c
+@LESSON_ID=
+@ENROLLMENT_ID=
+@enrollmentId=### Get progress for an enrollment (Student only)
+
+@QUIZ_ID=
+@STUDENT_ID=
+@QUESTION_ID=
+
+
+GET http://localhost:3000/enrollments/{{enrollmentId}}/progress
+Authorization: Bearer {{STUDENT_TOKEN}}
+@lessonId=
+@userId=93bbc8f1-37b2-40a6-a92c-5723dacff1e5
+
+### Login as student
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "briankuruui3768@gmail.com",
+  "password": "student123"
+}
+
+
+### ===== STUDENT ENDPOINTS =====
+
+### Student enrolls in a course
+POST http://localhost:3000/enrollments
+Authorization: Bearer {{STUDENT_TOKEN}}
+Content-Type: application/json
+
+{
+  "courseId": "{{COURSE_ID}}"
+}
+
+### Student gets their enrollments
+GET http://localhost:3000/enrollments/my-enrollments
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Student gets available courses
+GET http://localhost:3000/courses
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Student gets modules for a course
+GET http://localhost:3000/modules/course/{{COURSE_ID}}
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Student gets lessons for a module
+GET http://localhost:3000/lessons/module/{{MODULE_ID}}
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Student unenrolls from a course
+DELETE http://localhost:3000/enrollments/{{ENROLLMENT_ID}}
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+
+
+### Student: Get my certificates
+GET http://localhost:3000/enrollments/certificates/{{userId}}
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+
+### Mark lesson as complete (Student only)
+POST http://localhost:3000/enrollments/progress/complete
+Authorization: Bearer {{STUDENT_TOKEN}}
+Content-Type: application/json
+
+{
+  "enrollmentId": "{{enrollmentId}}",
+  "lessonId": "{{lessonId}}"
+}
+
+### Get progress for an enrollment (Student only)
+GET http://localhost:3000/enrollments/{{enrollmentId}}/progress
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+
+### Get my enrollments (Student only)
+GET http://localhost:3000/enrollments/my-enrollments
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+
+
+### 2. Get all quizzes for a course ---
+GET http://localhost:3000/quizzes/course/{{courseId}}
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+
+### 11. Create a quiz attempt ---
+POST http://localhost:3000/quizzes/attempts
+Authorization: Bearer {{STUDENT_TOKEN}}
+Content-Type: application/json
+
+{
+  "quizId": "{{QUIZ_ID}}",
+  "userId": "{{STUDENT_ID}}",
+  "answers": [
+    { "questionId": "{{QUESTION_ID}}", "answer": "4" }
+  ]
+}

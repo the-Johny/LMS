@@ -1,0 +1,162 @@
+### Progress Endpoints - Role-Based Access Control
+
+@enrollmentId=
+@lessonId=
+@lessonId1=
+@lessonId2=
+@userId=
+@courseId=
+@moduleId=
+
+# Variables
+@baseUrl = http://localhost:3000
+@authToken = 
+
+# Login to get token (required for all endpoints)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "student@example.com",
+  "password": "password123"
+}
+
+###
+
+# Mark lesson as complete (STUDENT only)
+POST {{baseUrl}}/progress/mark-complete
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "enrollmentId": "{{enrollmentId}}",
+  "lessonId": "{{lessonId}}"
+}
+
+###
+
+# Mark lesson as incomplete (STUDENT only)
+POST {{baseUrl}}/progress/mark-incomplete
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "enrollmentId": "{{enrollmentId}}",
+  "lessonId": "{{lessonId}}"
+}
+
+###
+
+# Bulk mark multiple lessons as complete (STUDENT only)
+POST {{baseUrl}}/progress/bulk-mark-complete
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "lessons": [
+    {
+      "enrollmentId": "{{enrollmentId}}",
+      "lessonId": "{{lessonId1}}"
+    },
+    {
+      "enrollmentId": "{{enrollmentId}}",
+      "lessonId": "{{lessonId2}}"
+    }
+  ]
+}
+
+###
+
+# Get user course progress (STUDENT/INSTRUCTOR/ADMIN)
+# Students can only see their own progress
+# Instructors/Admins can see any progress
+GET {{baseUrl}}/progress/{{enrollmentId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get all course progress for a user (STUDENT/INSTRUCTOR/ADMIN)
+# Students can only see their own progress
+# Instructors/Admins can see any user's progress
+GET {{baseUrl}}/progress/user/{{userId}}/courses
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get course progress overview (INSTRUCTOR/ADMIN only)
+# Instructors can only see progress for their own courses
+GET {{baseUrl}}/progress/course/{{courseId}}/overview
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get module progress details (STUDENT/INSTRUCTOR/ADMIN)
+# Students can only see their own progress when enrollmentId is provided
+GET {{baseUrl}}/progress/module/{{moduleId}}/progress?enrollmentId={{enrollmentId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get lesson completion statistics (INSTRUCTOR/ADMIN only)
+GET {{baseUrl}}/progress/lesson/{{lessonId}}/completions?courseId={{courseId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get progress history for an enrollment (STUDENT/INSTRUCTOR/ADMIN)
+# Students can only see their own history
+GET {{baseUrl}}/progress/history/{{enrollmentId}}?limit=20
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Reset all progress for an enrollment (STUDENT/ADMIN only)
+# Students can only reset their own progress
+PUT {{baseUrl}}/progress/reset/{{enrollmentId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Remove progress for a specific lesson (STUDENT/ADMIN only)
+# Students can only remove their own progress
+DELETE {{baseUrl}}/progress/lesson/{{enrollmentId}}/{{lessonId}}
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Get student progress analytics (STUDENT/INSTRUCTOR/ADMIN)
+# Students can only see their own analytics
+GET {{baseUrl}}/progress/analytics/student/{{userId}}?period=month
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###
+
+# Role-Based Access Summary:
+# 
+# STUDENT:
+# - Can mark their own lessons complete/incomplete
+# - Can view their own progress and analytics
+# - Can reset their own progress
+# - Cannot access other users' data
+# 
+# INSTRUCTOR:
+# - Can view progress for their own courses
+# - Can view lesson completion statistics
+# - Cannot modify student progress
+# - Cannot access other instructors' course data
+# 
+# ADMIN:
+# - Can view all progress and analytics
+# - Can reset any user's progress
+# - Can remove any lesson progress
+# - Full access to all progress data 

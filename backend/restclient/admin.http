@@ -1,0 +1,113 @@
+@ADMIN_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZTZlZDEzOC1lOTdmLTRjODUtOGMzYi0wNzA5ZTFjMzlmNmIiLCJlbWFpbCI6Iml0c2JyaWFuMjAyNUBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTE3MTU5NjYsImV4cCI6MTc1MTgwMjM2Nn0.Zc4fJ1lm5RYaS_MaRjAHtSDpCEKJPfjMeiT4OeuGlpY
+@INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTcxNjE3MywiZXhwIjoxNzUxODAyNTczfQ.TmnRfERlPMABnbydLIWyydnh50vq3qR4FUr0WEqx5Hw
+@STUDENT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5M2JiYzhmMS0zN2IyLTQwYTYtYTkyYy01NzIzZGFjZmYxZTUiLCJlbWFpbCI6ImJyaWFua3VydXVpMzc2OEBnbWFpbC5jb20iLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTcxNjIzOSwiZXhwIjoxNzUxODAyNjM5fQ.reuFdfWxTJIh8M4bAeAo31Q7UZ1Phj8VwCGhmqyABk0
+@COURSE_ID=2dface0f-7780-43b8-90c4-318dfe73da20
+@courseId=2dface0f-7780-43b8-90c4-318dfe73da20
+@MODULE_ID=8018ccea-1e2d-4ed1-9da1-8ab5670c220c
+@LESSON_ID=
+@ENROLLMENT_ID=
+@instructorId=9d5bea6b-c669-43e8-bebb-450950413313
+@userId=
+
+
+### ===== ADMIN ENDPOINTS =====
+### Login as admin
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "itsbrian2025@gmail.com",
+  "password": "admin123"
+}
+
+
+
+### Admin creates an instructor
+POST http://localhost:3000/users
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "The Brian",
+  "email": "kimutaibrian@gmail.com",
+  "password": "password123",
+  "role": "INSTRUCTOR"
+}
+
+### Admin creates a course
+POST http://localhost:3000/courses
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Advanced Programming",
+  "description": "Advanced programming concepts and techniques.",
+  "objectives": ["Master advanced concepts", "Build complex applications"],
+  "prerequisites": ["Basic programming knowledge"],
+  "level": "ADVANCED",
+  "category": "PROGRAMMING",
+  "isPublished": true
+}
+
+###admin  assigns a instructor the course
+PUT http://localhost:3000/courses/{{courseId}}/assign-instructor
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "instructorId": "{{instructorId}}"
+}
+
+
+### Admin gets all courses
+GET http://localhost:3000/courses
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get a course by ID
+GET http://localhost:3000/content/courses/{{courseId}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+
+### Update a course (Admin only)
+PUT http://localhost:3000/content/courses/{{courseId}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "title": "Intro to JavaScript"
+}
+
+### Delete a course (Admin only)
+DELETE http://localhost:3000/content/courses/{{courseId}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Admin gets course enrollments
+GET http://localhost:3000/enrollments/course/{{COURSE_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Admin: Get certificates for any user
+GET http://localhost:3000/enrollments/certificates/{{userId}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Issue a certificate (Admin/Instructor only)
+POST http://localhost:3000/enrollments/certificates
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "courseId": "{{courseId}}",
+  "certificateUrl": "https://example.com/certificate.pdf"
+}
+
+### Get all enrollments (Admin only)
+GET http://localhost:3000/enrollments
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Get modules by course (Admin/Instructor only)
+GET http://localhost:3000/content/courses/{{courseId}}/modules
+Authorization: Bearer {{ADMIN_TOKEN}}
+

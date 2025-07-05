@@ -1,0 +1,48 @@
+@ADMIN_TOKEN=
+@INSTRUCTOR_TOKEN=
+@STUDENT_TOKEN=
+@USER_ID=
+@COURSE_ID=
+@INSTRUCTOR_ID=
+
+
+
+### Get student progress (Admin/Instructor/Student)
+GET http://localhost:3000/analytics/student/{{USER_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get course completion rate (Admin/Instructor)
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/completion-rate
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get popular courses (Admin/Instructor)
+GET http://localhost:3000/analytics/popular-courses
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get instructor stats (Admin/Instructor)
+GET http://localhost:3000/analytics/instructor/{{INSTRUCTOR_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get dashboard stats (Admin)
+GET http://localhost:3000/analytics/dashboard/stats
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get course engagement (Admin/Instructor)
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/engagement?period=month
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get student learning path (Student)
+GET http://localhost:3000/analytics/student/{{USER_ID}}/learning-path
+Authorization: Bearer {{STUDENT_TOKEN}}
+
+### Get module progress for a course (Admin/Instructor)
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/module-progress
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get time spent analytics for user (Admin/Instructor/Student)
+GET http://localhost:3000/analytics/time-spent/{{USER_ID}}?courseId={{COURSE_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get certificate stats (Admin/Instructor)
+GET http://localhost:3000/analytics/certificate-stats?instructorId={{INSTRUCTOR_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
