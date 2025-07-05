@@ -1,0 +1,104 @@
+@instructorId =8deb94e8-f96f-4193-807c-fa5c3659425f
+@moduleId =375158fd-43c5-442b-aeea-e626fe3b79d3
+@courseId=6bb881f0-144f-4e8e-abdd-aa761f967492
+@courseId1=933f3e5f-8b13-487e-ae5c-5e4e1bc308ba
+@lessonId=61b183a1-1a5a-419e-8e12-b5d5cc5bde47
+### Get all courses
+GET http://localhost:3000/content/courses
+
+### Get a course by ID
+GET http://localhost:3000/content/courses/{{courseId}}
+
+### Create a course
+POST http://localhost:3000/content/courses
+Content-Type: application/json
+
+{
+  "title": "Intro to TypeScript",
+  "description": "Learn the basics of TypeScript.",
+  "objectives": ["Understand types", "Use interfaces"],
+  "prerequisites": ["Basic JavaScript"],
+  "level": "BEGINNER",
+  "category": "PROGRAMMING",
+  "isPublished": true,
+  "instructorId": "{{instructorId}}"
+}
+
+### Create a course1
+POST http://localhost:3000/content/courses
+Content-Type: application/json
+
+{
+  "title": "Intro to JavasScript",
+  "description": "Learn the basics of JavasScript.",
+  "objectives": ["Understand types", "Use interfaces"],
+  "prerequisites": ["Basic JavaScript"],
+  "level": "BEGINNER",
+  "category": "PROGRAMMING",
+  "isPublished": true,
+  "instructorId": "{{instructorId}}"
+}
+
+
+### Update a course
+PUT http://localhost:3000/content/courses/{{courseId}}
+Content-Type: application/json
+
+{
+  "title": "Intro to JavaScript"
+}
+
+### Delete a course
+DELETE http://localhost:3000/content/courses/{{courseId}}
+
+### Delete a course1
+DELETE http://localhost:3000/content/courses/{{courseId1}}
+
+### Get modules by course
+GET http://localhost:3000/content/courses/{{courseId}}/modules
+
+### Create a module
+POST http://localhost:3000/content/modules
+Content-Type: application/json
+
+{
+  "title": "Intro to data types",
+  "courseId": "{{courseId}}"
+}
+
+### Update a module
+PUT http://localhost:3000/content/modules/{{moduleId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Module Title"
+}
+
+### Delete a module
+DELETE http://localhost:3000/content/modules/{{moduleId}}
+
+### Get lessons by module
+GET http://localhost:3000/content/modules/{{moduleId}}/lessons
+
+### Create a lesson
+POST http://localhost:3000/content/lessons
+Content-Type: application/json
+
+{
+  "title": "Lesson 1",
+  "contentUrl": "https://www.gurukultti.org/admin/notice/javascript.pdf",
+  "type": "VIDEO",
+  "order": 1,
+  "moduleId": "{{moduleId}}"
+}
+
+### Update a lesson
+PUT http://localhost:3000/content/lessons/{{lessonId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Lesson Title"
+}
+
+### Delete a lesson
+DELETE http://localhost:3000/content/lessons/{{lessonId}}
