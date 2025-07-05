@@ -141,11 +141,7 @@ model Progress {
   User         User?      @relation(fields: [userId], references: [id])
   userId       String?
 
-<<<<<<< Updated upstream
   @@unique([enrollmentId, lessonId]) 
-=======
-  @@unique([enrollmentId, lessonId])
->>>>>>> Stashed changes
 }
 
 
