@@ -1,15 +1,23 @@
-// src/user/user.service.ts
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { UserQueryDto } from './dto/user-query.dto';
-import { UserStatsDto } from './dto/user-stats.dto';
-import { BulkUpdateUsersDto } from './dto/bulk-update-users.dto';
-import { UserWithRelationsDto } from './dto/user-with-relations.dto';
+
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { BulkUpdateUsersDto } from './dtos/bulk-update.users.dto';
+import { ChangePasswordDto } from './dtos/change.password.dto';
+import { CreateUserDto } from './dtos/create.user.dto';
+import { UpdateUserDto } from './dtos/update.user.dto';
+import { UserQueryDto } from './dtos/user-query.dto';
+import { UserStatsDto } from './dtos/user-stats.dto';
+import { UserWithRelationsDto } from './dtos/user.with.relations.dto';
 
 @Injectable()
 export class UserService {
@@ -18,7 +26,7 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email }
+      where: { email: createUserDto.email },
     });
 
     if (existingUser) {
@@ -41,30 +49,38 @@ export class UserService {
         isEmailVerified: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
 
     return user;
   }
 
   async findAll(query: UserQueryDto) {
-    const { search, role, isEmailVerified, page, limit, sortBy, sortOrder } = query;
-    
+    const {
+      search,
+      role,
+      isEmailVerified,
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = query;
+
     const skip = (page - 1) * limit;
-    
+
     const where: any = {};
-    
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
       ];
     }
-    
+
     if (role) {
       where.role = role;
     }
-    
+
     if (isEmailVerified !== undefined) {
       where.isEmailVerified = isEmailVerified;
     }
@@ -84,10 +100,10 @@ export class UserService {
         skip,
         take: limit,
         orderBy: {
-          [sortBy]: sortOrder
-        }
+          [sortBy]: sortOrder,
+        },
       }),
-      this.prisma.user.count({ where })
+      this.prisma.user.count({ where }),
     ]);
 
     return {
@@ -99,7 +115,7 @@ export class UserService {
         totalPages: Math.ceil(total / limit),
         hasNext: page < Math.ceil(total / limit),
         hasPrev: page > 1,
-      }
+      },
     };
   }
 
@@ -114,7 +130,7 @@ export class UserService {
         isEmailVerified: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
 
     if (!user) {
@@ -140,7 +156,7 @@ export class UserService {
             id: true,
             title: true,
             isPublished: true,
-          }
+          },
         },
         enrollments: {
           select: {
@@ -150,9 +166,9 @@ export class UserService {
               select: {
                 id: true,
                 title: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         certificates: {
           select: {
@@ -162,9 +178,9 @@ export class UserService {
               select: {
                 id: true,
                 title: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         reviews: {
           select: {
@@ -172,9 +188,9 @@ export class UserService {
             rating: true,
             comment: true,
             createdAt: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -184,8 +200,8 @@ export class UserService {
     // Calculate stats
     const coursesCreated = {
       count: user.coursesCreated.length,
-      published: user.coursesCreated.filter(c => c.isPublished).length,
-      unpublished: user.coursesCreated.filter(c => !c.isPublished).length,
+      published: user.coursesCreated.filter((c) => c.isPublished).length,
+      unpublished: user.coursesCreated.filter((c) => !c.isPublished).length,
     };
 
     const enrollments = {
@@ -201,9 +217,11 @@ export class UserService {
 
     const reviews = {
       count: user.reviews.length,
-      averageRating: user.reviews.length > 0 
-        ? user.reviews.reduce((sum, r) => sum + r.rating, 0) / user.reviews.length 
-        : 0,
+      averageRating:
+        user.reviews.length > 0
+          ? user.reviews.reduce((sum, r) => sum + r.rating, 0) /
+            user.reviews.length
+          : 0,
     };
 
     return {
@@ -232,7 +250,7 @@ export class UserService {
         isEmailVerified: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
 
     if (!user) {
@@ -245,7 +263,7 @@ export class UserService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     // Check if user exists
     const existingUser = await this.prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existingUser) {
@@ -255,7 +273,7 @@ export class UserService {
     // Check if email is being updated and if it's already taken
     if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
       const emailTaken = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email }
+        where: { email: updateUserDto.email },
       });
 
       if (emailTaken) {
@@ -274,7 +292,7 @@ export class UserService {
         isEmailVerified: true,
         createdAt: true,
         updatedAt: true,
-      }
+      },
     });
 
     return updatedUser;
@@ -286,7 +304,7 @@ export class UserService {
       select: {
         id: true,
         password: true,
-      }
+      },
     });
 
     if (!user) {
@@ -296,7 +314,7 @@ export class UserService {
     // Verify current password
     const isCurrentPasswordValid = await bcrypt.compare(
       changePasswordDto.currentPassword,
-      user.password
+      user.password,
     );
 
     if (!isCurrentPasswordValid) {
@@ -304,13 +322,16 @@ export class UserService {
     }
 
     // Hash new password
-    const hashedNewPassword = await bcrypt.hash(changePasswordDto.newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      10,
+    );
 
     await this.prisma.user.update({
       where: { id },
       data: {
         password: hashedNewPassword,
-      }
+      },
     });
 
     return { message: 'Password changed successfully' };
@@ -318,7 +339,7 @@ export class UserService {
 
   async remove(id: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!user) {
@@ -326,7 +347,7 @@ export class UserService {
     }
 
     await this.prisma.user.delete({
-      where: { id }
+      where: { id },
     });
 
     return { message: 'User deleted successfully' };
@@ -338,15 +359,15 @@ export class UserService {
     const result = await this.prisma.user.updateMany({
       where: {
         id: {
-          in: userIds
-        }
+          in: userIds,
+        },
       },
-      data: updateData
+      data: updateData,
     });
 
     return {
       message: `${result.count} users updated successfully`,
-      updatedCount: result.count
+      updatedCount: result.count,
     };
   }
 
@@ -357,7 +378,7 @@ export class UserService {
       totalInstructors,
       totalStudents,
       verifiedUsers,
-      recentUsers
+      recentUsers,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.count({ where: { role: Role.ADMIN } }),
@@ -367,10 +388,10 @@ export class UserService {
       this.prisma.user.count({
         where: {
           createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-          }
-        }
-      })
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+          },
+        },
+      }),
     ]);
 
     return {
@@ -397,14 +418,14 @@ export class UserService {
         updatedAt: true,
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
   }
 
   async verifyEmail(id: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!user) {
@@ -415,7 +436,7 @@ export class UserService {
       where: { id },
       data: {
         isEmailVerified: true,
-      }
+      },
     });
 
     return { message: 'Email verified successfully' };
@@ -425,7 +446,7 @@ export class UserService {
     // This would typically set an isActive flag, but since it's not in your schema,
     // we'll implement it as a soft delete or role change
     const user = await this.prisma.user.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!user) {
@@ -434,6 +455,8 @@ export class UserService {
 
     // You might want to add an isActive field to your schema
     // For now, we'll return a message
-    return { message: 'User deactivation feature requires isActive field in schema' };
+    return {
+      message: 'User deactivation feature requires isActive field in schema',
+    };
   }
 }

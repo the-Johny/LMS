@@ -1,4 +1,10 @@
-import { IsArray, IsString, IsOptional, IsEnum, IsBoolean } from 'class-validator';
+import {
+  IsArray,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+} from 'class-validator';
 import { Role } from '@prisma/client';
 
 export class BulkUpdateUsersDto {

@@ -1,88 +1,79 @@
-export class CourseService {
-  constructor(private prisma: PrismaClient) {}
+import { Injectable } from '@nestjs/common';
+import { Category, Level } from '@prisma/client';
+import { v4 as uuidv4 } from 'uuid';
 
-  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseResponseDto> {
+import { CreateCourseDto } from './dtos/create-course.dto';
+import { UpdateCourseDto } from './dtos/update-course.dto';
+import { CourseQueryDto } from './dtos/course-query.dto';
+import { CourseResponseDto } from './dtos/course-response.dto';
+import { CourseListDto } from './dtos/course-list.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class CourseService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async createCourse(
+    createCourseDto: CreateCourseDto,
+  ): Promise<CourseResponseDto> {
     const course = await this.prisma.course.create({
       data: {
+        id: uuidv4(),
         ...createCourseDto,
-        id: crypto.randomUUID()
       },
       include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      }
+        instructor: true,
+      },
     });
 
     return this.mapToCourseResponse(course);
   }
 
-  async findAllCourses(queryDto: CourseQueryDto): Promise<{
-    courses: CourseListDto[];
-    total: number;
-    page: number;
-    limit: number;
-  }> {
-    const { page = 1, limit = 10, category, level, search, instructorId, isPublished } = queryDto;
+  async findAllCourses(queryDto: CourseQueryDto): Promise<CourseListDto> {
+    const {
+      page = 1,
+      limit = 10,
+      category,
+      level,
+      search,
+      instructorId,
+      isPublished,
+    } = queryDto;
+
     const skip = (page - 1) * limit;
 
-    const where: any = {};
-    
+    const where: Record<string, any> = {};
     if (category) where.category = category;
     if (level) where.level = level;
     if (instructorId) where.instructorId = instructorId;
-    if (isPublished !== undefined) where.isPublished = isPublished;
+    if (typeof isPublished === 'boolean') where.isPublished = isPublished;
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
+        { description: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    const [courses, total] = await Promise.all([
+    const [courses, total] = await this.prisma.$transaction([
       this.prisma.course.findMany({
         where,
         skip,
         take: limit,
         include: {
-          instructor: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          _count: {
-            select: {
-              enrollments: true
-            }
-          }
+          instructor: true,
+          _count: { select: { enrollments: true } },
         },
-        orderBy: {
-          createdAt: 'desc'
-        }
+        orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.course.count({ where })
+      this.prisma.course.count({ where }),
     ]);
 
     return {
-      courses: courses.map(course => ({
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        level: course.level,
-        category: course.category,
-        isPublished: course.isPublished,
-        instructor: course.instructor,
-        createdAt: course.createdAt,
-        enrollmentCount: course._count.enrollments
-      })),
+      courses: courses.map((course) => this.mapToCourseResponse(course)),
       total,
       page,
-      limit
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
@@ -90,258 +81,97 @@ export class CourseService {
     const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        },
+        instructor: true,
         modules: {
           include: {
             lessons: {
-              orderBy: {
-                order: 'asc'
-              }
-            }
-          }
+              orderBy: { order: 'asc' },
+            },
+          },
         },
-        _count: {
-          select: {
-            enrollments: true
-          }
-        }
-      }
+        _count: { select: { enrollments: true } },
+      },
     });
 
-    if (!course) return null;
-
-    return this.mapToCourseResponse(course);
+    return course ? this.mapToCourseResponse(course) : null;
   }
 
-  async updateCourse(id: string, updateCourseDto: UpdateCourseDto): Promise<CourseResponseDto | null> {
+  async updateCourse(
+    id: string,
+    dto: UpdateCourseDto,
+  ): Promise<CourseResponseDto | null> {
     try {
       const course = await this.prisma.course.update({
         where: { id },
-        data: updateCourseDto,
+        data: dto,
         include: {
-          instructor: {
-            select: {
-              id: true,
-              name: true,
-              email: true
-            }
-          }
-        }
+          instructor: true,
+        },
       });
 
       return this.mapToCourseResponse(course);
-    } catch (error) {
+    } catch {
       return null;
     }
   }
 
   async deleteCourse(id: string): Promise<boolean> {
     try {
-      await this.prisma.course.delete({
-        where: { id }
-      });
+      await this.prisma.course.delete({ where: { id } });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
-  async getCoursesByInstructor(instructorId: string): Promise<CourseListDto[]> {
+  async getCoursesByInstructor(
+    instructorId: string,
+  ): Promise<CourseResponseDto[]> {
     const courses = await this.prisma.course.findMany({
       where: { instructorId },
       include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true
-          }
-        },
-        _count: {
-          select: {
-            enrollments: true
-          }
-        }
+        instructor: true,
+        _count: { select: { enrollments: true } },
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
+      orderBy: { createdAt: 'desc' },
     });
 
-    return courses.map(course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description,
-      level: course.level,
-      category: course.category,
-      isPublished: course.isPublished,
-      instructor: course.instructor,
-      createdAt: course.createdAt,
-      enrollmentCount: course._count.enrollments
-    }));
+    return courses.map((course) => this.mapToCourseResponse(course));
   }
 
-  private mapToCourseResponse(course: any): CourseResponseDto {
+  private mapToCourseResponse(course: {
+    id: string;
+    title: string;
+    description: string;
+    objectives?: string[];
+    prerequisites?: string[];
+    level: string;
+    category: string;
+    isPublished: boolean;
+    instructorId: string;
+    instructor?: { name?: string };
+    createdAt: Date;
+    updatedAt: Date;
+    _count?: { enrollments: number };
+    averageRating?: number | null;
+    modules?: any[];
+  }): CourseResponseDto {
     return {
       id: course.id,
       title: course.title,
       description: course.description,
-      objectives: course.objectives,
-      prerequisites: course.prerequisites,
-      level: course.level,
-      category: course.category,
+      objectives: course.objectives || [],
+      prerequisites: course.prerequisites || [],
+      level: course.level as Level,
+      category: course.category as Category,
       isPublished: course.isPublished,
       instructorId: course.instructorId,
-      instructor: course.instructor,
+      instructorName: course.instructor?.name || '',
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
-      modules: course.modules?.map(module => ({
-        id: module.id,
-        title: module.title,
-        courseId: module.courseId,
-        lessons: module.lessons,
-        lessonCount: module.lessons?.length || 0
-      })),
-      enrollmentCount: course._count?.enrollments
+      enrollmentCount: course._count?.enrollments ?? 0,
+      averageRating: course.averageRating ?? undefined,
+      moduleCount: course.modules?.length ?? 0,
     };
   }
 }
-
-export class ModuleService {
-  constructor(private prisma: PrismaClient) {}
-
-  async createModule(createModuleDto: CreateModuleDto): Promise<ModuleResponseDto> {
-    const module = await this.prisma.module.create({
-      data: {
-        ...createModuleDto,
-        id: crypto.randomUUID()
-      },
-      include: {
-        course: {
-          select: {
-            id: true,
-            title: true
-          }
-        }
-      }
-    });
-
-    return this.mapToModuleResponse(module);
-  }
-
-  async findAllModules(): Promise<ModuleResponseDto[]> {
-    const modules = await this.prisma.module.findMany({
-      include: {
-        course: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        lessons: {
-          orderBy: {
-            order: 'asc'
-          }
-        }
-      }
-    });
-
-    return modules.map(module => this.mapToModuleResponse(module));
-  }
-
-  async findModuleById(id: string): Promise<ModuleResponseDto | null> {
-    const module = await this.prisma.module.findUnique({
-      where: { id },
-      include: {
-        course: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        lessons: {
-          orderBy: {
-            order: 'asc'
-          }
-        }
-      }
-    });
-
-    if (!module) return null;
-
-    return this.mapToModuleResponse(module);
-  }
-
-  async findModulesByCourse(courseId: string): Promise<ModuleResponseDto[]> {
-    const modules = await this.prisma.module.findMany({
-      where: { courseId },
-      include: {
-        course: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        lessons: {
-          orderBy: {
-            order: 'asc'
-          }
-        }
-      }
-    });
-
-    return modules.map(module => this.mapToModuleResponse(module));
-  }
-
-  async updateModule(id: string, updateModuleDto: UpdateModuleDto): Promise<ModuleResponseDto | null> {
-    try {
-      const module = await this.prisma.module.update({
-        where: { id },
-        data: updateModuleDto,
-        include: {
-          course: {
-            select: {
-              id: true,
-              title: true
-            }
-          },
-          lessons: {
-            orderBy: {
-              order: 'asc'
-            }
-          }
-        }
-      });
-
-      return this.mapToModuleResponse(module);
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async deleteModule(id: string): Promise<boolean> {
-    try {
-      await this.prisma.module.delete({
-        where: { id }
-      });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  private mapToModuleResponse(module: any): ModuleResponseDto {
-    return {
-      id: module.id,
-      title: module.title,
-      courseId: module.courseId,
-      course: module.course,
-      lessons: module.lessons,
-      lessonCount: module.lessons?.length || 0
-    };
-  }

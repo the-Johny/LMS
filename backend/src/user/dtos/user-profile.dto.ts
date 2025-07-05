@@ -8,7 +8,7 @@ export class UserProfileDto {
   isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Additional profile stats
   totalCoursesCreated?: number;
   totalEnrollments?: number;

@@ -1,3 +1,18 @@
+import {
+  Announcement,
+  Category,
+  Certificate,
+  DiscussionPost,
+  Enrollment,
+  LessonCompletion,
+  LessonType,
+  Level,
+  Progress,
+  Quiz,
+  Review,
+  Role,
+} from '@prisma/client';
+
 export class User {
   id: string;
   name: string;
@@ -22,7 +37,7 @@ export class Course {
   instructorId: string;
   createdAt: Date;
   updatedAt: Date;
-  
+
   // Relations
   instructor?: User;
   modules?: Module[];
@@ -38,7 +53,7 @@ export class Module {
   id: string;
   title: string;
   courseId: string;
-  
+
   // Relations
   course?: Course;
   lessons?: Lesson[];
@@ -52,9 +67,25 @@ export class Lesson {
   isVisible: boolean;
   order: number;
   moduleId: string;
-  
+
   // Relations
   module?: Module;
   progress?: Progress[];
   completions?: LessonCompletion[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
+export interface PaginationResponse<T> extends ApiResponse<T[]> {
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

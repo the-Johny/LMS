@@ -1,12 +1,12 @@
 # Course REST API Client
 # Base URL - Update this to match your server
-@baseUrl = http://localhost:3000/api
+@baseUrl = http://localhost:3000/api/v1
 @contentType = application/json
 
 # Variables for testing - Update these with actual values
 @courseId = 550e8400-e29b-41d4-a716-446655440000
-@instructorId = 550e8400-e29b-41d4-a716-446655440001
-@authToken = your-jwt-token-here
+@instructorId = 550d1021-21e2-440a-b12d-ef2505cdc0b0
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1NTBkMTAyMS0yMWUyLTQ0MGEtYjEyZC1lZjI1MDVjZGMwYjAiLCJlbWFpbCI6ImphbmUuc21pdGhAZXhhbXBsZS5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTcwNjM1NSwiZXhwIjoxNzUxNzA3MjU1fQ.K9YwJZ_DJBPN6ULKMFQHyYF_I9kmlTWuVeQVWo2aqj8
 
 ### Variables for creating test course
 @testCourseTitle = Advanced JavaScript Development

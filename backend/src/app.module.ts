@@ -1,17 +1,31 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable prettier/prettier */
+import { AuthController } from './auth/auth.controller';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from './prisma/prisma.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { UsersModule } from './users/users.module';
-import { CoursesModule } from './courses/courses.module';
-import { UserModule } from './user/user.module';
-import { CourseModule } from './course/course.module';
+import { CourseController } from './course/course.controller';
+import { CourseService } from './course/course.service';
+import { AuthService } from './auth/auth.service';
 
 @Module({
-  controllers: [AppController, CoursesController],
-  controllers: [AppController],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    JwtModule.registerAsync({
+      global: true,
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_ACCESS_SECRET'),
+        signOptions: {
+          expiresIn:
+            configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m',
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [AuthController, CourseController],
+  providers: [PrismaService, AuthService, CourseService],
+})
 export class AppModule {}

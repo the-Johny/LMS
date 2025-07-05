@@ -1,11 +1,7 @@
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class ChangePasswordDto {
+export class VerifyEmailDto {
   @IsString()
   @IsNotEmpty()
-  currentPassword: string;
-
-  @IsString()
-  @MinLength(6)
-  newPassword: string;
+  token: string;
 }

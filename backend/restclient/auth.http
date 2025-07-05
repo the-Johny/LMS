@@ -1,5 +1,5 @@
 ### Variables
-@baseUrl = http://localhost:3000/api
+@baseUrl = http://localhost:3000/api/v1
 @authUrl = {{baseUrl}}/auth
 @contentType = application/json
 
@@ -48,8 +48,8 @@ POST {{authUrl}}/login
 Content-Type: {{contentType}}
 
 {
-  "email": "john.doe@example.com",
-  "password": "SecurePass123!"
+  "email": "jane.smith@example.com",
+  "password": "InstructorPass456!"
 }
 
 ### Extract tokens from login response
