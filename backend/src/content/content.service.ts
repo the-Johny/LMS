@@ -1,13 +1,17 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import * as path from 'path';
 import * as https from 'https';
 import * as http from 'http';
-import { CreateCourseDto, CreateLessonDto, UpdateCourseDto, UpdateLessonDto, UpdateModuleDto } from './dtos/content.dto';
+import { CreateCourseDto, UpdateCourseDto } from '../courses/dto/course.dto';
+import { CreateModuleDto, UpdateModuleDto } from '../modules/dto/module.dto';
+import { CreateLessonDto, UpdateLessonDto } from '../lessons/dto/lesson.dto';
+import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @Injectable()
 export class ContentService {
@@ -15,7 +19,7 @@ export class ContentService {
     private prisma: PrismaService,
     private cloudinaryService: CloudinaryService,
   ) {}
-
+ 
   // Courses
   async getAllCourses() {
     return this.prisma.course.findMany();
@@ -23,13 +27,28 @@ export class ContentService {
   async getCourseById(id: string) {
     return this.prisma.course.findUnique({ where: { id } });
   }
-  async createCourse(data: CreateCourseDto) {
+  async createCourse(createCourseDto: CreateCourseDto, user: any) {
+    const { instructorId, ...courseData } = createCourseDto;
+    const data = {
+      ...courseData,
+      instructorId: instructorId || null
+    };
     return this.prisma.course.create({ data });
   }
-  async updateCourse(id: string, data: UpdateCourseDto) {
+  async updateCourse(id: string, data: UpdateCourseDto, user: UserFromJwt) {
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) throw new NotFoundException('Course not found');
+    if (user.role !== Role.ADMIN && course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only update your own courses');
+    }
     return this.prisma.course.update({ where: { id }, data });
   }
-  async deleteCourse(id: string) {
+  async deleteCourse(id: string, user: UserFromJwt) {
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) throw new NotFoundException('Course not found');
+    if (user.role !== Role.ADMIN && course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only delete your own courses');
+    }
     return this.prisma.course.delete({ where: { id } });
   }
 
@@ -37,13 +56,28 @@ export class ContentService {
   async getModulesByCourse(courseId: string) {
     return this.prisma.module.findMany({ where: { courseId } });
   }
-  async createModule(data: any) {
+  async createModule(data: CreateModuleDto, user: UserFromJwt) {
+    const course = await this.prisma.course.findUnique({ where: { id: data.courseId } });
+    if (!course) throw new NotFoundException('Course not found');
+    if (user.role !== Role.ADMIN && course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only create modules for your own courses');
+    }
     return this.prisma.module.create({ data });
   }
-  async updateModule(id: string, data: UpdateModuleDto) {
+  async updateModule(id: string, data: UpdateModuleDto, user: UserFromJwt) {
+    const module = await this.prisma.module.findUnique({ where: { id }, include: { course: true } });
+    if (!module) throw new NotFoundException('Module not found');
+    if (user.role !== Role.ADMIN && module.course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only update modules for your own courses');
+    }
     return this.prisma.module.update({ where: { id }, data });
   }
-  async deleteModule(id: string) {
+  async deleteModule(id: string, user: UserFromJwt) {
+    const module = await this.prisma.module.findUnique({ where: { id }, include: { course: true } });
+    if (!module) throw new NotFoundException('Module not found');
+    if (user.role !== Role.ADMIN && module.course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only delete modules for your own courses');
+    }
     return this.prisma.module.delete({ where: { id } });
   }
 
@@ -51,7 +85,12 @@ export class ContentService {
   async getLessonsByModule(moduleId: string) {
     return this.prisma.lesson.findMany({ where: { moduleId } });
   }
-  async createLesson(data: CreateLessonDto) {
+  async createLesson(data: CreateLessonDto, user: UserFromJwt) {
+    const module = await this.prisma.module.findUnique({ where: { id: data.moduleId }, include: { course: true } });
+    if (!module) throw new NotFoundException('Module not found');
+    if (user.role !== Role.ADMIN && module.course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only create lessons for your own courses');
+    }
     // If contentUrl is a remote URL (http/https), upload to Cloudinary first
     if (typeof data.contentUrl === 'string' && (data.contentUrl.startsWith('http://') || data.contentUrl.startsWith('https://'))) {
       const ext = path.extname(data.contentUrl).toLowerCase();
@@ -65,10 +104,20 @@ export class ContentService {
     }
     return this.prisma.lesson.create({ data });
   }
-  async updateLesson(id: string, data: UpdateLessonDto) {
+  async updateLesson(id: string, data: UpdateLessonDto, user: UserFromJwt) {
+    const lesson = await this.prisma.lesson.findUnique({ where: { id }, include: { module: { include: { course: true } } } });
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    if (user.role !== Role.ADMIN && lesson.module.course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only update lessons for your own courses');
+    }
     return this.prisma.lesson.update({ where: { id }, data });
   }
-  async deleteLesson(id: string) {
+  async deleteLesson(id: string, user: UserFromJwt) {
+    const lesson = await this.prisma.lesson.findUnique({ where: { id }, include: { module: { include: { course: true } } } });
+    if (!lesson) throw new NotFoundException('Lesson not found');
+    if (user.role !== Role.ADMIN && lesson.module.course.instructorId !== user.userId) {
+      throw new ForbiddenException('You can only delete lessons for your own courses');
+    }
     return this.prisma.lesson.delete({ where: { id } });
   }
 
@@ -90,16 +139,12 @@ export class ContentService {
 
   // Upload file from remote URL and allow only PDF, Word, and video files
   async uploadFileFromUrl(url: string, folder: string) {
-    // Download file as a buffer
     const buffer = await this.downloadFileBuffer(url);
-    // Get file extension
     const ext = path.extname(url).toLowerCase();
-    // Allowed file types
     const allowed = ['.pdf', '.doc', '.docx', '.mp4', '.avi', '.mov', '.wmv', '.mkv'];
     if (!allowed.includes(ext)) {
       throw new Error('File type not allowed. Only PDF, Word, and video files are supported.');
     }
-    // Upload to Cloudinary
     return this.cloudinaryService.uploadFileBuffer(buffer, folder);
   }
 }
