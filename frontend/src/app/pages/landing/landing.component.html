@@ -72,124 +72,34 @@
       </p>
     </div>
 
-    <!-- Course Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div
-        class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-      >
-        <div
-          class="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center"
-        >
-          <div class="text-white text-center">
-            <i class="fas fa-mobile-alt text-4xl mb-2"></i>
-            <h3 class="text-lg font-semibold">
-              Build That To-Manage Swift App in React 18
-            </h3>
-          </div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center mb-2">
-            <div class="flex text-yellow-400 text-sm">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <span class="text-gray-600 text-sm ml-2">(4.5)</span>
-          </div>
-          <p class="text-2xl font-bold text-gray-900">$79</p>
+<!-- Course Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <ng-container *ngFor="let course of topCourses">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+      <div class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+        <div class="text-white text-center">
+          <h3 class="text-lg font-semibold">{{ course.title }}</h3>
         </div>
       </div>
-
-      <div
-        class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-      >
-        <div
-          class="h-48 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center"
-        >
-          <div class="text-white text-center">
-            <i class="fas fa-chart-line text-4xl mb-2"></i>
-            <h3 class="text-lg font-semibold">
-              Build AI Bot Diamond Swift App in React 18
-            </h3>
+      <div class="p-4">
+        <div class="flex items-center mb-2">
+          <div class="flex text-yellow-400 text-sm">
+            <ng-container *ngFor="let star of [1,2,3,4,5]; let i = index">
+              <!-- <i class="fas" [ngClass]="course.rating > i ? 'fa-star' : 'fa-star text-gray-300'"></i> -->
+            </ng-container>
           </div>
+          <!-- <span class="text-gray-600 text-sm ml-2">({{ course.rating }})</span> -->
         </div>
-        <div class="p-4">
-          <div class="flex items-center mb-2">
-            <div class="flex text-yellow-400 text-sm">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <span class="text-gray-600 text-sm ml-2">(4.8)</span>
-          </div>
-          <p class="text-2xl font-bold text-gray-900">$99</p>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-      >
-        <div
-          class="h-48 bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center"
-        >
-          <div class="text-white text-center">
-            <i class="fas fa-code text-4xl mb-2"></i>
-            <h3 class="text-lg font-semibold">
-              React Router Complete Course in One Video
-            </h3>
-          </div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center mb-2">
-            <div class="flex text-yellow-400 text-sm">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <span class="text-gray-600 text-sm ml-2">(4.7)</span>
-          </div>
-          <p class="text-2xl font-bold text-gray-900">$119</p>
-        </div>
-      </div>
-
-      <div
-        class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-      >
-        <div
-          class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center"
-        >
-          <div class="text-white text-center">
-            <i class="fas fa-shopping-cart text-4xl mb-2"></i>
-            <h3 class="text-lg font-semibold">
-              Build Full Stack E-Commerce App in React 18
-            </h3>
-          </div>
-        </div>
-        <div class="p-4">
-          <div class="flex items-center mb-2">
-            <div class="flex text-yellow-400 text-sm">
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-              <i class="fas fa-star"></i>
-            </div>
-            <span class="text-gray-600 text-sm ml-2">(4.9)</span>
-          </div>
-          <p class="text-2xl font-bold text-gray-900">$149</p>
-        </div>
+        <!-- <p class="text-2xl font-bold text-gray-900">${{ course.price }}</p> -->
       </div>
     </div>
+  </ng-container>
+</div>
+
 
     <div class="text-center">
       <button
-        class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+        routerLink="/courses" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
       >
         Show all courses
       </button>
