@@ -32,12 +32,12 @@ export class ProfileComponent implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
     this.authService.updateProfile({ name: this.name, email: this.email }).subscribe({
-      next: (user) => {
+      next: (user: User) => {
         this.user = user;
         this.successMessage = 'Profile updated successfully!';
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.errorMessage = 'Failed to update profile.';
         this.loading = false;
       }

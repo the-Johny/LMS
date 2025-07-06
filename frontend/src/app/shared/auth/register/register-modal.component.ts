@@ -1,33 +1,27 @@
 import { Component, inject } from '@angular/core';
 import { ModalService } from '../../modal/modal.service';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../Services/auth.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-register-modal',
+  imports: [CommonModule, FormsModule],
   templateUrl: './register-modal.component.html',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
 })
 export class RegisterModalComponent {
-  registerForm: FormGroup;
-  isLoading = false;
-  errorMessage = '';
+  modalService = inject(ModalService);
+  auth = inject(AuthService);
 
-  constructor(
-    public modalService: ModalService,
-    private authService: AuthService,
-    private fb: FormBuilder
-  ) {
-    this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-      role: ['STUDENT', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
-  }
+  name = '';
+  email = '';
+  password = '';
+  confirmPassword = '';
+  successMessage = '';
+  errorMessage = '';
+  isLoading = false;
+
 
   close() {
     this.modalService.closeModals();
@@ -37,37 +31,29 @@ export class RegisterModalComponent {
     this.modalService.openLogin();
   }
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
-    
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
+  register() {
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = 'Passwords do not match';
+      return;
     }
-    
-    return null;
-  }
-
-  onSubmit() {
-    if (this.registerForm.valid) {
-      this.isLoading = true;
-      this.errorMessage = '';
-
-      const { confirmPassword, ...registerData } = this.registerForm.value;
-
-      this.authService.register(registerData).subscribe({
-        next: (response) => {
-          console.log('Registration successful:', response);
-          this.isLoading = false;
-          this.close();
-        },
-        error: (error) => {
-          console.error('Registration error:', error);
-          this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+    this.isLoading = true;
+    this.auth.register(this.name, this.email, this.password).subscribe({
+      next: (res) => {
+        this.successMessage = 'Registration successful!';
+        this.isLoading = false;
+        console.log('Registration successful:', res);
+        setTimeout(() => this.close(), 2000); 
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.status === 409) {
+          this.errorMessage = 'Email is already registered';
+        } else {
+          this.errorMessage =
+            'Registration failed: ' + (err?.error?.message || 'Try again');
         }
-      });
-    }
+        console.error('Registration failed:', err);
+      },
+    });
   }
 }
