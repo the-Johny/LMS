@@ -51,7 +51,7 @@ Content-Type: application/json
   "courseId": "{{COURSE_ID}}"
 }
 
-###
+### updates module
 PUT http://localhost:3000/content/modules/{{MODULE_ID}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
@@ -136,16 +136,6 @@ Content-Type: application/json
   "certificateUrl": "https://example.com/certificate.pdf"
 }
 
-### Issue a certificate with Cloudinary URL (will be stored as-is)
-POST http://localhost:3000/enrollments/certificates
-Authorization: Bearer {{INSTRUCTOR_TOKEN}}
-Content-Type: application/json
-
-{
-  "userId": "{{userId}}",
-  "courseId": "{{COURSE_ID}}",
-  "certificateUrl": "https://res.cloudinary.com/your-cloud/raw/upload/v1234567890/certificates/certificate_completion.pdf"
-}
 
 ### Get certificates for a student (Instructor can see students in their courses)
 GET http://localhost:3000/enrollments/certificates/{{userId}}
@@ -243,17 +233,6 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 GET http://localhost:3000/quizzes/attempts/user/{{userId}}
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
- 
-
-
-# ### Get user course progress 
-
-# GET http://localhost:3000/progress/{{ENROLLMENT_ID}}
-# Content-Type: application/json
-# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
-
-
-
 
 ### Get all course progress for a user 
 GET http://localhost:3000/progress/user/{{userId}}/courses
@@ -261,11 +240,6 @@ Content-Type: application/json
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 
-
-# ### Get course progress overview 
-# GET http://localhost:3000/progress/course/{{COURSE_ID}}/overview
-# Content-Type: application/json
-# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 
 ### Get module progress details 
@@ -279,6 +253,39 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 GET http://localhost:3000/progress/lesson/{{LESSON_ID}}/completions?courseId={{COURSE_ID}}
 Content-Type: application/json
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+### Get student progress analytics 
+GET http://localhost:3000/progress/analytics/student/{{userId}}?period=month
+Content-Type: application/json
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+
+
+### Issue a certificate with Cloudinary URL (will be stored as-is)
+# POST http://localhost:3000/enrollments/certificates
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+# Content-Type: application/json
+
+# {
+#   "userId": "{{userId}}",
+#   "courseId": "{{COURSE_ID}}",
+#   "certificateUrl": "https://res.cloudinary.com/your-cloud/raw/upload/v1234567890/certificates/certificate_completion.pdf"
+# }
+
+# ### Get user course progress 
+
+# GET http://localhost:3000/progress/{{ENROLLMENT_ID}}
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+# ### Get course progress overview 
+# GET http://localhost:3000/progress/course/{{COURSE_ID}}/overview
+# Content-Type: application/json
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
 
 
 # ### Get progress history for an enrollment 
@@ -302,10 +309,6 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 
 
-### Get student progress analytics 
-GET http://localhost:3000/progress/analytics/student/{{userId}}?period=month
-Content-Type: application/json
-Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 
 
 

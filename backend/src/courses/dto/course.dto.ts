@@ -44,6 +44,16 @@ export class CreateCourseDto {
   @IsBoolean()
   isPublished: boolean;
 
+  @ApiProperty({ example: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/courses/course-image.jpg' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @ApiProperty({ example: 'courses/course-image' })
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
+
   @IsOptional()
   @IsString()
   instructorId?: string;
@@ -89,6 +99,16 @@ export class UpdateCourseDto {
   @IsBoolean()
   isPublished?: boolean;
 
+  @ApiProperty({ example: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/courses/course-image.jpg' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @ApiProperty({ example: 'courses/course-image' })
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
+
   @IsOptional()
   @IsString()
   instructorId?: string;
@@ -118,6 +138,12 @@ export class CourseResponseDto {
 
   @ApiProperty()
   isPublished: boolean;
+
+  @ApiProperty()
+  imageUrl?: string;
+
+  @ApiProperty()
+  imagePublicId?: string;
 
   @ApiProperty()
   instructorId: string;

@@ -57,6 +57,16 @@ export class CloudinaryService {
     return this.uploadFromUrl(url, 'certificates', `certificate_${certificateId}`);
   }
 
+  async uploadCourseImage(url: string, courseId: string): Promise<UploadApiResponse> {
+    console.log('CloudinaryService.uploadCourseImage', { url, courseId });
+    return this.uploadFromUrl(url, 'courses', `course_${courseId}`);
+  }
+
+  async deleteCourseImage(courseId: string): Promise<{ result: string }> {
+    console.log('CloudinaryService.deleteCourseImage', { courseId });
+    return this.deleteFile(`courses/course_${courseId}`);
+  }
+
   async deleteFile(publicId: string): Promise<{ result: string }> {
     console.log('CloudinaryService.deleteFile', { publicId });
     return new Promise((resolve, reject) => {
