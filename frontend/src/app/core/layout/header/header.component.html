@@ -1,7 +1,6 @@
 <header class="bg-[rgb(238,255,255)] shadow-sm fixed top-0 w-full z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
-
       <div class="flex items-center">
         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
           <i class="fas fa-graduation-cap text-white text-sm"></i>
@@ -9,11 +8,22 @@
         <span class="ml-2 text-xl font-bold text-gray-900">LearningHub</span>
       </div>
 
-      <nav class="hidden md:flex space-x-8">
+      <nav class="hidden md:flex space-x-8 items-center">
         <a routerLink="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>
         <a routerLink="/courses" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Courses</a>
         <a (click)="modalService.openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Add Course</a>
-        <a (click)="modalService.openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Login</a>
+
+        <ng-container *ngIf="isLoggedIn; else guestLinks">
+          <span class="text-sm text-gray-700">
+            Welcome, {{ authService.getCurrentUser()?.name }}
+          </span>
+          <a (click)="logout()" class="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium cursor-pointer">Logout</a>
+        </ng-container>
+
+        <ng-template #guestLinks>
+          <a (click)="openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Login</a>
+          <button (click)="openRegister()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Create Account</button>
+        </ng-template>
       </nav>
 
       <div class="md:hidden">
@@ -25,12 +35,6 @@
           </svg>
         </button>
       </div>
-
-      <div class="hidden md:block">
-        <button (click)="modalService.openRegister()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-          Create Account
-        </button>
-      </div>
     </div>
   </div>
 
@@ -39,10 +43,18 @@
       <a routerLink="/" class="block text-gray-700 hover:text-blue-600 text-sm font-medium">Home</a>
       <a routerLink="/courses" class="block text-gray-700 hover:text-blue-600 text-sm font-medium">Courses</a>
       <a (click)="modalService.openLogin()" class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer">Add Course</a>
-      <a (click)="modalService.openLogin()" class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer">Login</a>
-      <button (click)="modalService.openRegister()" class="mt-2 w-full bg-blue-600 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
-        Create Account
-      </button>
+
+      <ng-container *ngIf="isLoggedIn; else mobileGuestLinks">
+        <span class="block text-sm text-gray-600">
+          Welcome, {{ authService.getCurrentUser()?.name }}
+        </span>
+        <a (click)="logout()" class="block text-gray-700 hover:text-red-600 text-sm font-medium cursor-pointer">Logout</a>
+      </ng-container>
+
+      <ng-template #mobileGuestLinks>
+        <a (click)="openLogin()" class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer">Login</a>
+        <button (click)="openRegister()" class="mt-2 w-full bg-blue-600 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Create Account</button>
+      </ng-template>
     </nav>
   </div>
 </header>

@@ -1,14 +1,29 @@
 <div
-  *ngIf="modal.isRegisterOpen()"
+  *ngIf="modalService.isRegisterOpen()"
   class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
 >
   <div class="bg-white rounded-lg p-8 w-full max-w-md shadow-xl relative">
-    <button (click)="close()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    <button
+      (click)="close()"
+      class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
+    >
+      &times;
+    </button>
 
     <h2 class="text-2xl font-bold text-gray-900 mb-6">Register</h2>
 
-    <form class="space-y-4">
+    <div *ngIf="errorMessage" class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+      {{ successMessage }}
+    </div>
+
+    <form class="space-y-4" (ngSubmit)="register()" #registerForm="ngForm">
       <input
+        [(ngModel)]="email"
+        name ="email"
         type="email"
         placeholder="Email"
         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -16,6 +31,8 @@
       />
 
       <input
+        [(ngModel)]="name"
+        name="name"
         type="text"
         placeholder="Username"
         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -23,6 +40,8 @@
       />
 
       <input
+        [(ngModel)]="password"
+        name="password"
         type="password"
         placeholder="Password"
         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -30,6 +49,8 @@
       />
 
       <input
+        [(ngModel)]="confirmPassword"
+        name="confirmPassword"
         type="password"
         placeholder="Confirm Password"
         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -47,7 +68,9 @@
     <div class="text-center mt-6">
       <p class="text-gray-400">
         Already have an account?
-        <button (click)="toggleToLogin()" class="text-blue-500 underline ml-1">Login</button>
+        <button (click)="toggleToLogin()" class="text-blue-500 underline ml-1">
+          Login
+        </button>
       </p>
     </div>
   </div>
