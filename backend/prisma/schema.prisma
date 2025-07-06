@@ -78,10 +78,12 @@ model Course {
   objectives    String[] // learning goals
   prerequisites String[] // prior knowledge or requirements
   level         Level
-  category      Category
-  isPublished   Boolean  @default(false)
-  instructor    User?    @relation("InstructorCourses", fields: [instructorId], references: [id])
-  instructorId  String?
+      category      Category
+    isPublished   Boolean  @default(false)
+    imageUrl      String?  // Cloudinary image URL
+    imagePublicId String?  // Cloudinary public ID for image management
+    instructor    User?    @relation("InstructorCourses", fields: [instructorId], references: [id])
+    instructorId  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

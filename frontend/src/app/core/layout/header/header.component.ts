@@ -10,10 +10,12 @@ import { AuthService } from '../../../Services/auth.service';
   standalone: true,
   templateUrl: './header.component.html',
 })
+
 export class HeaderComponent implements OnInit {
   menuOpen = false;
   isLoggedIn = false;
   userName: string | null = null;
+
 
   constructor(
     public modalService: ModalService,
@@ -35,12 +37,15 @@ export class HeaderComponent implements OnInit {
     this.modalService.openLogin();
   }
 
+
   openRegister() {
     this.modalService.openRegister();
   }
 
   logout() {
     this.authService.logout();
+
     this.userName = null;
+
   }
 }

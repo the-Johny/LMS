@@ -21,6 +21,7 @@ export class RegisterModalComponent {
   successMessage = '';
   errorMessage = '';
 
+
   close() {
     this.modalService.closeModals();
   }
@@ -52,5 +53,6 @@ export class RegisterModalComponent {
       console.error('Registration failed:', err);
     },
   });
+
   }
 }

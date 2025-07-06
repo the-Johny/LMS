@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+
 export interface AuthResponse {
   access_token: string;
   user: {
     id: string;
+
     email: string;
     name: string;
+
     role: string;
   };
 }
@@ -57,6 +60,7 @@ export class AuthService {
       return null;
     }
   }
+
 
   getToken(): string | null {
     return localStorage.getItem('token');
