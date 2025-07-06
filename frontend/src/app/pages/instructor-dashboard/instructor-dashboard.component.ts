@@ -140,10 +140,16 @@ export class InstructorDashboardComponent implements OnInit {
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
-    
     // Load data when switching to specific tabs
     if (tab === 'certificates') {
       this.loadCertificateStats();
+      // Load certificates for all students in the selected course
+      if (this.enrollments && this.enrollments.length > 0) {
+        const userIds = this.enrollments.map(e => e.user?.id || e.userId);
+        this.loadAllStudentCertificates(userIds);
+      } else {
+        this.studentCertificates = [];
+      }
     }
   }
 
@@ -232,11 +238,46 @@ export class InstructorDashboardComponent implements OnInit {
   loadStudentCertificates(userId: string) {
     this.instructorService.getStudentCertificates(userId).subscribe({
       next: (certificates) => {
-        this.studentCertificates = certificates;
+        this.studentCertificates = certificates.map(cert => ({
+          ...cert,
+          studentName: cert.user?.name || cert.user?.email || 'N/A',
+          courseTitle: cert.course?.title || 'N/A'
+        }));
       },
       error: (error) => {
         console.error('Error loading student certificates:', error);
       }
+    });
+  }
+
+  loadAllStudentCertificates(userIds: string[]) {
+    const certs: Certificate[] = [];
+    let loaded = 0;
+    if (userIds.length === 0) {
+      this.studentCertificates = [];
+      return;
+    }
+    userIds.forEach(userId => {
+      this.instructorService.getStudentCertificates(userId).subscribe({
+        next: (certificates) => {
+          certs.push(...certificates.map(cert => ({
+            ...cert,
+            studentName: cert.user?.name || cert.user?.email || 'N/A',
+            courseTitle: cert.course?.title || 'N/A'
+          })));
+          loaded++;
+          if (loaded === userIds.length) {
+            // Remove duplicates by certificate id
+            this.studentCertificates = certs.filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i);
+          }
+        },
+        error: () => {
+          loaded++;
+          if (loaded === userIds.length) {
+            this.studentCertificates = certs.filter((c, i, arr) => arr.findIndex(x => x.id === c.id) === i);
+          }
+        }
+      });
     });
   }
 
@@ -296,5 +337,30 @@ export class InstructorDashboardComponent implements OnInit {
     return 'text-red-600';
   }
 
+  onCertificateFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.instructorService.uploadCertificateFile(file).subscribe({
+        next: (res) => {
+          if (res && res.url) {
+            this.certificateUrl = res.url;
+          }
+        },
+        error: (err) => {
+          console.error('Certificate file upload failed:', err);
+        }
+      });
+    }
+  }
+
+  getQuizzesTaken(): number {
+    return this.quizAttempts ? this.quizAttempts.length : 0;
+  }
+
+  getAverageQuizScore(): number {
+    if (!this.quizAttempts || this.quizAttempts.length === 0) return 0;
+    const total = this.quizAttempts.reduce((sum, a) => sum + (a.score || 0), 0);
+    return Math.round(total / this.quizAttempts.length);
+  }
 
 } 

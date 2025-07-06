@@ -12,9 +12,9 @@
 @userId=93bbc8f1-37b2-40a6-a92c-5723dacff1e5
 
 
-@QUIZ_ID=6bc4525a-cbc6-4bb9-b283-f3520f2ee14d
+@QUIZ_ID=2764f9de-cc1c-4d44-9a10-9eca8f30991a
 
-@QUESTION_ID=
+@QUESTION_ID=3160d86f-d40f-41c5-9761-0b67e24779eb
 
 ### Login as instructor
 POST http://localhost:3000/auth/login
@@ -26,20 +26,7 @@ Content-Type: application/json
 }
 
 
-### Instructor creates a course
-POST http://localhost:3000/courses
-Authorization: Bearer {{INSTRUCTOR_TOKEN}}
-Content-Type: application/json
 
-{
-  "title": "My Course",
-  "description": "A course created by instructor.",
-  "objectives": ["Learn basics"],
-  "prerequisites": ["None"],
-  "level": "BEGINNER",
-  "category": "PROGRAMMING",
-  "isPublished": false
-}
 
 ### Instructor creates a module
 POST http://localhost:3000/modules
@@ -75,7 +62,7 @@ Content-Type: application/json
 
 {
   "title": "Introduction to Programming",
-  "contentUrl": "https://www.cs.toronto.edu/~mashiyat/csc309/Lectures/javascript.pdf",
+  "contentUrl": "https://www.cs.toronto.edu/~mashiyat/csc309/Lectures/javascript.mp4",
   "type": "pdf",
   "order": 1,
   "moduleId": "{{MODULE_ID}}",
@@ -161,7 +148,7 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 Content-Type: application/json
 
 {
-  "title": "Quiz 1",
+  "title": "Quiz 4",
   "courseId": "{{COURSE_ID}}",
   "timeLimit": 30
 }
@@ -259,6 +246,23 @@ Authorization: Bearer {{INSTRUCTOR_TOKEN}}
 GET http://localhost:3000/progress/analytics/student/{{userId}}?period=month
 Content-Type: application/json
 Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+
+
+### Instructor creates a course
+# POST http://localhost:3000/courses
+# Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+# Content-Type: application/json
+
+# {
+#   "title": "My Course",
+#   "description": "A course created by instructor.",
+#   "objectives": ["Learn basics"],
+#   "prerequisites": ["None"],
+#   "level": "BEGINNER",
+#   "category": "PROGRAMMING",
+#   "isPublished": false,
+#   "imageUrl":"https://images.app.goo.gl/Ao2zjWzb7GYxfXi66"
+# }
 
 
 

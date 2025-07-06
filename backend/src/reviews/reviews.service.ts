@@ -27,4 +27,8 @@ export class ReviewsService {
   async remove(id: string) {
     return this.prisma.review.delete({ where: { id } });
   }
+
+  async findByCourse(courseId: string) {
+    return this.prisma.review.findMany({ where: { courseId } });
+  }
 } 

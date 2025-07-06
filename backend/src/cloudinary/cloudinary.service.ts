@@ -17,11 +17,18 @@ export class CloudinaryService {
   async uploadFileBuffer(
     buffer: Buffer,
     folder: string,
+    mimetype?: string,
   ): Promise<UploadApiResponse> {
-    console.log('CloudinaryService.uploadFileBuffer', { folder });
+    console.log('CloudinaryService.uploadFileBuffer', { folder, mimetype });
+    let resourceType: 'image' | 'video' | 'raw' = 'raw';
+    if (mimetype) {
+      if (mimetype.startsWith('image/')) resourceType = 'image';
+      else if (mimetype.startsWith('video/')) resourceType = 'video';
+      else resourceType = 'raw';
+    }
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder },
+        { folder, resource_type: resourceType },
         (error, result) => {
           if (error) return reject(error);
           resolve(result as UploadApiResponse);
@@ -57,9 +64,15 @@ export class CloudinaryService {
     return this.uploadFromUrl(url, 'certificates', `certificate_${certificateId}`);
   }
 
-  async uploadCourseImage(url: string, courseId: string): Promise<UploadApiResponse> {
-    console.log('CloudinaryService.uploadCourseImage', { url, courseId });
-    return this.uploadFromUrl(url, 'courses', `course_${courseId}`);
+  async uploadCourseImage(image: Buffer | string, courseId: string): Promise<UploadApiResponse> {
+    console.log('CloudinaryService.uploadCourseImage', { imageType: typeof image, courseId });
+    if (Buffer.isBuffer(image)) {
+      return this.uploadFileBuffer(image, 'courses');
+    } else if (typeof image === 'string') {
+      return this.uploadFromUrl(image, 'courses', `course_${courseId}`);
+    } else {
+      throw new Error('Invalid image type for uploadCourseImage');
+    }
   }
 
   async deleteCourseImage(courseId: string): Promise<{ result: string }> {

@@ -12,11 +12,13 @@ import { InstructorService } from '../../Services/instructor.service';
 })
 export class CourseManagementComponent implements OnInit {
   courses: any[] = [];
-  isCreatingCourse = false;
   isEditingCourse = false;
   selectedCourse: any = null;
   isLoading = true;
   courseForm: FormGroup;
+  selectedImageFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  currentUserRole: string = 'INSTRUCTOR'; // Replace with actual role fetching logic
 
   courseLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
   courseCategories = ['PROGRAMMING', 'DESIGN', 'BUSINESS', 'MARKETING', 'LIFESTYLE', 'OTHER'];
@@ -55,22 +57,11 @@ export class CourseManagementComponent implements OnInit {
     });
   }
 
-  openCreateCourse() {
-    this.isCreatingCourse = true;
-    this.isEditingCourse = false;
-    this.selectedCourse = null;
-    this.courseForm.reset({
-      level: 'BEGINNER',
-      category: 'PROGRAMMING',
-      isPublished: false
-    });
-  }
-
   openEditCourse(course: any) {
     this.isEditingCourse = true;
-    this.isCreatingCourse = false;
     this.selectedCourse = course;
-    
+    this.selectedImageFile = null;
+    this.imagePreviewUrl = course.imageUrl || null;
     this.courseForm.patchValue({
       title: course.title,
       description: course.description,
@@ -79,41 +70,56 @@ export class CourseManagementComponent implements OnInit {
       level: course.level,
       category: course.category,
       isPublished: course.isPublished,
-      imageUrl: course.imageUrl || ''
+      imageUrl: ''
     });
   }
 
   closeForm() {
-    this.isCreatingCourse = false;
     this.isEditingCourse = false;
     this.selectedCourse = null;
     this.courseForm.reset();
   }
 
+  onImageFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedImageFile = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.imagePreviewUrl = e.target.result;
+      };
+      reader.readAsDataURL(this.selectedImageFile);
+    } else {
+      this.selectedImageFile = null;
+      this.imagePreviewUrl = null;
+    }
+  }
+
   onSubmit() {
     if (this.courseForm.valid) {
-      const formData = this.courseForm.value;
-      const courseData = {
-        ...formData,
-        objectives: formData.objectives.split('\n').filter((obj: string) => obj.trim()),
-        prerequisites: formData.prerequisites.split('\n').filter((pre: string) => pre.trim())
-      };
-
-      if (this.isCreatingCourse) {
-        this.instructorService.createCourse(courseData).subscribe({
+      const formData = new FormData();
+      const formValue = this.courseForm.value;
+      const objectivesArray = formValue.objectives
+        ? formValue.objectives.split('\n').map((obj: string) => obj.trim()).filter((obj: string) => obj)
+        : [];
+      const prerequisitesArray = formValue.prerequisites
+        ? formValue.prerequisites.split('\n').map((pre: string) => pre.trim()).filter((pre: string) => pre)
+        : [];
+      formData.append('title', formValue.title);
+      formData.append('description', formValue.description);
+      formData.append('objectives', JSON.stringify(objectivesArray));
+      formData.append('prerequisites', JSON.stringify(prerequisitesArray));
+      formData.append('level', formValue.level);
+      formData.append('category', formValue.category);
+      formData.append('isPublished', formValue.isPublished ? 'true' : 'false');
+      if (this.selectedImageFile) {
+        formData.append('image', this.selectedImageFile);
+      } else if (formValue.imageUrl) {
+        formData.append('imageUrl', formValue.imageUrl);
+      }
+      if (this.isEditingCourse && this.selectedCourse) {
+        this.instructorService.updateCourse(this.selectedCourse.id, formData).subscribe({
           next: (response) => {
-            console.log('Course created successfully:', response);
-            this.loadCourses();
-            this.closeForm();
-          },
-          error: (error) => {
-            console.error('Error creating course:', error);
-          }
-        });
-      } else if (this.isEditingCourse && this.selectedCourse) {
-        this.instructorService.updateCourse(this.selectedCourse.id, courseData).subscribe({
-          next: (response) => {
-            console.log('Course updated successfully:', response);
             this.loadCourses();
             this.closeForm();
           },

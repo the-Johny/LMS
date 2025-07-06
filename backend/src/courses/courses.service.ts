@@ -1,4 +1,10 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable prettier/prettier */
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
@@ -18,40 +24,68 @@ export class CoursesService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async create(createCourseDto: CreateCourseDto) {
+  async create(createCourseDto: CreateCourseDto, image?: Express.Multer.File) {
     const { instructorId, imageUrl, ...courseData } = createCourseDto;
-    
-    let cloudinaryData = {};
-    
-    // Handle image upload if provided
-    if (imageUrl) {
+    // Parse objectives, prerequisites, and isPublished if they are strings (from FormData)
+    const parsedData = {
+      ...courseData,
+      objectives:
+        typeof courseData.objectives === 'string'
+          ? (() => { try { return JSON.parse(courseData.objectives); } catch { return []; } })()
+          : Array.isArray(courseData.objectives)
+            ? courseData.objectives
+            : [],
+      prerequisites:
+        typeof courseData.prerequisites === 'string'
+          ? (() => { try { return JSON.parse(courseData.prerequisites); } catch { return []; } })()
+          : Array.isArray(courseData.prerequisites)
+            ? courseData.prerequisites
+            : [],
+      isPublished: typeof courseData.isPublished === 'string'
+        ? courseData.isPublished === 'true'
+        : !!courseData.isPublished,
+    };
+    let createdCourse;
+
+    // First, create the course without image fields
+    createdCourse = await this.prisma.course.create({
+      data: { ...parsedData, instructorId: instructorId || null }
+    });
+
+    // If an image file is provided, upload it to Cloudinary
+    if (image && image.buffer) {
       try {
-        const course = await this.prisma.course.create({ 
-          data: { ...courseData, instructorId: instructorId || null } 
-        });
-        
-        const uploadResult = await this.cloudinaryService.uploadCourseImage(imageUrl, course.id);
-        
-        // Update course with Cloudinary data
+        const uploadResult = await this.cloudinaryService.uploadCourseImage(image.buffer, createdCourse.id);
         return this.prisma.course.update({
-          where: { id: course.id },
+          where: { id: createdCourse.id },
           data: {
             imageUrl: uploadResult.secure_url,
             imagePublicId: uploadResult.public_id,
           },
         });
       } catch (error) {
-        // If image upload fails, create course without image
         console.error('Failed to upload course image:', error);
-        return this.prisma.course.create({ 
-          data: { ...courseData, instructorId: instructorId || null } 
-        });
+        // Return the course without image fields
+        return createdCourse;
       }
     }
-    
-    return this.prisma.course.create({ 
-      data: { ...courseData, instructorId: instructorId || null } 
-    });
+    // If a direct imageUrl is provided (legacy support), try to upload it to Cloudinary
+    if (imageUrl) {
+      try {
+        const uploadResult = await this.cloudinaryService.uploadCourseImage(imageUrl, createdCourse.id);
+        return this.prisma.course.update({
+          where: { id: createdCourse.id },
+          data: {
+            imageUrl: uploadResult.secure_url,
+            imagePublicId: uploadResult.public_id,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to upload course image from URL:', error);
+        return createdCourse;
+      }
+    }
+    return createdCourse;
   }
 
   async findAll() {
@@ -64,7 +98,7 @@ export class CoursesService {
     return course;
   }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto, user: UserFromJwt) {
+  async update(id: string, updateCourseDto: UpdateCourseDto, user: UserFromJwt, image?: Express.Multer.File) {
     const course = await this.prisma.course.findUnique({ where: { id } });
 
     if (!course) {
@@ -76,22 +110,38 @@ export class CoursesService {
     }
 
     const { imageUrl, ...updateData } = updateCourseDto;
-    
-    // Handle image update if provided
-    if (imageUrl && imageUrl !== course.imageUrl) {
+    // Parse objectives, prerequisites, and isPublished if they are strings (from FormData)
+    const parsedData = {
+      ...updateData,
+      objectives:
+        typeof updateData.objectives === 'string'
+          ? (() => { try { return JSON.parse(updateData.objectives); } catch { return []; } })()
+          : Array.isArray(updateData.objectives)
+            ? updateData.objectives
+            : [],
+      prerequisites:
+        typeof updateData.prerequisites === 'string'
+          ? (() => { try { return JSON.parse(updateData.prerequisites); } catch { return []; } })()
+          : Array.isArray(updateData.prerequisites)
+            ? updateData.prerequisites
+            : [],
+      isPublished: typeof updateData.isPublished === 'string'
+        ? updateData.isPublished === 'true'
+        : !!updateData.isPublished,
+    };
+
+    // If an image file is provided, upload it to Cloudinary
+    if (image && image.buffer) {
       try {
         // Delete old image if it exists
         if (course.imagePublicId) {
           await this.cloudinaryService.deleteFile(course.imagePublicId);
         }
-        
-        // Upload new image
-        const uploadResult = await this.cloudinaryService.uploadCourseImage(imageUrl, id);
-        
+        const uploadResult = await this.cloudinaryService.uploadCourseImage(image.buffer, id);
         return this.prisma.course.update({
           where: { id },
           data: {
-            ...updateData,
+            ...parsedData,
             imageUrl: uploadResult.secure_url,
             imagePublicId: uploadResult.public_id,
           },
@@ -101,8 +151,27 @@ export class CoursesService {
         // Continue with update without image change
       }
     }
-    
-    return this.prisma.course.update({ where: { id }, data: updateData });
+    // If a new imageUrl is provided (legacy support), upload it to Cloudinary
+    if (imageUrl && imageUrl !== course.imageUrl) {
+      try {
+        if (course.imagePublicId) {
+          await this.cloudinaryService.deleteFile(course.imagePublicId);
+        }
+        const uploadResult = await this.cloudinaryService.uploadCourseImage(imageUrl, id);
+        return this.prisma.course.update({
+          where: { id },
+          data: {
+            ...parsedData,
+            imageUrl: uploadResult.secure_url,
+            imagePublicId: uploadResult.public_id,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to update course image from URL:', error);
+        // Continue with update without image change
+      }
+    }
+    return this.prisma.course.update({ where: { id }, data: parsedData });
   }
 
   async remove(id: string, user: UserFromJwt) {

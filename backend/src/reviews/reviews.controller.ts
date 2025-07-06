@@ -79,4 +79,15 @@ export class ReviewsController {
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(id);
   }
+
+  @Get('course/:courseId')
+  @ApiOperation({ summary: 'Get all reviews for a specific course' })
+  @ApiResponse({
+    status: 200,
+    description: 'Course reviews retrieved successfully',
+    type: [ReviewResponseDto],
+  })
+  findByCourse(@Param('courseId') courseId: string) {
+    return this.reviewsService.findByCourse(courseId);
+  }
 }

@@ -11,6 +11,8 @@ import {
   Put,
   UsePipes,
   ValidationPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
@@ -25,6 +27,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 import { UserFromJwt } from '../auth/interfaces/auth.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -33,12 +36,16 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
-  @Roles(Role.INSTRUCTOR, Role.ADMIN)
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Create a new course (Instructor/Admin only)' })
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({ summary: 'Create a new course (Admin only)' })
   @ApiResponse({ status: 201, description: 'Course created successfully' })
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.coursesService.create(createCourseDto);
+  create(
+    @Body() createCourseDto: CreateCourseDto,
+    @UploadedFile() image?: Express.Multer.File
+  ) {
+    return this.coursesService.create(createCourseDto, image);
   }
 
   @Get()
@@ -66,6 +73,7 @@ export class CoursesController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Update course by ID (Admin/Instructor only)' })
   @ApiResponse({
     status: 200,
@@ -76,8 +84,9 @@ export class CoursesController {
     @Param('id') id: string,
     @Body() updateCourseDto: UpdateCourseDto,
     @CurrentUser() user: UserFromJwt,
+    @UploadedFile() image?: Express.Multer.File
   ) {
-    return this.coursesService.update(id, updateCourseDto, user);
+    return this.coursesService.update(id, updateCourseDto, user, image);
   }
 
   @Delete(':id')

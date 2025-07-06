@@ -13,8 +13,14 @@ export class QuizzesService {
 
   // Quizzes
   async getQuizzesByCourse(courseId: string) {
-    console.log('QuizzesService.getQuizzesByCourse', { courseId });
-    return this.prisma.quiz.findMany({ where: { courseId } });
+    const quizzes = await this.prisma.quiz.findMany({
+      where: { courseId },
+      include: { questions: true }
+    });
+    return quizzes.map(quiz => ({
+      ...quiz,
+      questionCount: quiz.questions.length
+    }));
   }
   async createQuiz(data: CreateQuizDto, user: UserFromJwt) {
     console.log('QuizzesService.createQuiz', { data });
@@ -149,47 +155,77 @@ async createQuestion(data: CreateQuestionDto, user: UserFromJwt) {
   // Attempts
   async getAttemptsByUser(userId: string, user: UserFromJwt) {
     console.log('QuizzesService.getAttemptsByUser', { userId, user });
-    
     // Students can only see their own attempts
     if (user.role === 'STUDENT' && user.userId !== userId) {
       throw new ForbiddenException('You can only view your own quiz attempts');
     }
-    
     // Instructors can only see attempts for students in their courses
+    let attempts;
     if (user.role === 'INSTRUCTOR') {
-      const attempts = await this.prisma.quizAttempt.findMany({
+      attempts = await this.prisma.quizAttempt.findMany({
         where: { userId },
         include: {
           quiz: {
             include: {
-              course: true
+              course: true,
+              questions: true
             }
           }
         }
       });
-      
       // Filter attempts to only include those from courses the instructor teaches
-      const filteredAttempts = attempts.filter(attempt => 
+      attempts = attempts.filter(attempt => 
         attempt.quiz.course.instructorId === user.userId
       );
-      
-      if (filteredAttempts.length === 0 && attempts.length > 0) {
-        throw new ForbiddenException('You can only view quiz attempts for students in your courses');
+      if (attempts.length === 0) {
+        return [];
       }
-      
-      return filteredAttempts;
+    } else {
+      // Admins can see all attempts
+      attempts = await this.prisma.quizAttempt.findMany({ 
+        where: { userId },
+        include: {
+          quiz: {
+            include: {
+              course: true,
+              questions: true
+            }
+          }
+        }
+      });
     }
-    
-    // Admins can see all attempts
-    return this.prisma.quizAttempt.findMany({ 
-      where: { userId },
-      include: {
-        quiz: {
-          include: {
-            course: true
+    // Map attempts to expected frontend format
+    return attempts.map(attempt => {
+      const totalQuestions = attempt.quiz.questions.length;
+      let correctAnswers = 0;
+      if (Array.isArray(attempt.answers)) {
+        // answers is an array of { questionId, answer }
+        for (const q of attempt.quiz.questions) {
+          const found = attempt.answers.find(a => a.questionId === q.id);
+          if (found && found.answer === q.answer) {
+            correctAnswers++;
+          }
+        }
+      } else if (attempt.answers && typeof attempt.answers === 'object') {
+        // answers is an object { [questionId]: answer }
+        for (const q of attempt.quiz.questions) {
+          if (attempt.answers[q.id] && attempt.answers[q.id] === q.answer) {
+            correctAnswers++;
           }
         }
       }
+      const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      return {
+        id: attempt.id,
+        userId: attempt.userId,
+        quizId: attempt.quizId,
+        quizTitle: attempt.quiz.title,
+        score,
+        totalQuestions,
+        correctAnswers,
+        completedAt: attempt.submittedAt,
+        timeSpent: attempt.timeSpent || 0 // fallback to 0 if not tracked
+      };
     });
   }
   async createAttempt(data: CreateAttemptDto, user: UserFromJwt) {

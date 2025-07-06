@@ -15,6 +15,16 @@ export interface Course {
   instructorId: string;
   createdAt: string;
   updatedAt: string;
+  imageUrl?: string;
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  userId: string;
+  courseId: string;
+  createdAt: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,5 +40,8 @@ export class CourseService {
   getCourseById(id: string): Observable<Course> {
     return this.http.get<Course>(`${this.baseUrl}/${id}`);
   }
-  
+
+  getCourseReviews(courseId: string): Observable<Review[]> {
+    return this.http.get<Review[]>(`http://localhost:3000/reviews/course/${courseId}`);
+  }
 }

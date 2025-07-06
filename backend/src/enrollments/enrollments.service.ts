@@ -22,7 +22,10 @@ export class EnrollmentsService {
   }
   async getEnrollmentsByCourse(courseId: string) {
     console.log('EnrollmentsService.getEnrollmentsByCourse', { courseId });
-    return this.prisma.enrollment.findMany({ where: { courseId } });
+    return this.prisma.enrollment.findMany({
+      where: { courseId },
+      include: { user: true }
+    });
   }
   async getAllEnrollments() {
     console.log('EnrollmentsService.getAllEnrollments');
@@ -55,37 +58,33 @@ export class EnrollmentsService {
   // Certificates
   async getCertificatesByUser(userId: string, user: UserFromJwt) {
     console.log('EnrollmentsService.getCertificatesByUser', { userId, user });
-    
     // Students can only see their own certificates
     if (user.role === 'STUDENT' && user.userId !== userId) {
       throw new ForbiddenException('You can only view your own certificates');
     }
-    
     // Instructors can only see certificates for students in their courses
     if (user.role === 'INSTRUCTOR') {
       const certificates = await this.prisma.certificate.findMany({
         where: { userId },
         include: {
+          user: true,
           course: true
         }
       });
-      
       // Filter certificates to only include those from courses the instructor teaches
       const filteredCertificates = certificates.filter(certificate => 
         certificate.course.instructorId === user.userId
       );
-      
       if (filteredCertificates.length === 0 && certificates.length > 0) {
         throw new ForbiddenException('You can only view certificates for students in your courses');
       }
-      
       return filteredCertificates;
     }
-    
     // Admins can see all certificates
     return this.prisma.certificate.findMany({ 
       where: { userId },
       include: {
+        user: true,
         course: true
       }
     });

@@ -394,30 +394,49 @@ export class AnalyticsService {
       whereClause.course = { instructorId };
     }
 
-    const [totalCertificates, recentCertificates, certificatesByMonth] = await Promise.all([
-      this.prisma.certificate.count({ where: whereClause }),
-      this.prisma.certificate.count({
-        where: {
-          ...whereClause,
-          issuedAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-          }
-        }
-      }),
-      this.prisma.certificate.groupBy({
-        by: ['issuedAt'],
-        where: whereClause,
-        _count: true
-      })
-    ]);
+    // Get all certificates with course info
+    const certificates = await this.prisma.certificate.findMany({
+      where: whereClause,
+      include: { course: true }
+    });
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Total issued
+    const totalIssued = certificates.length;
+    // Issued this month
+    const thisMonth = certificates.filter(cert => {
+      const issued = new Date(cert.issuedAt);
+      return issued.getMonth() === currentMonth && issued.getFullYear() === currentYear;
+    }).length;
+    // Issued this year
+    const thisYear = certificates.filter(cert => {
+      const issued = new Date(cert.issuedAt);
+      return issued.getFullYear() === currentYear;
+    }).length;
+    // By course
+    const byCourseMap = new Map();
+    certificates.forEach(cert => {
+      if (!cert.course) return;
+      const key = cert.courseId;
+      if (!byCourseMap.has(key)) {
+        byCourseMap.set(key, {
+          courseId: cert.courseId,
+          courseTitle: cert.course.title,
+          certificatesIssued: 0
+        });
+      }
+      byCourseMap.get(key).certificatesIssued++;
+    });
+    const byCourse = Array.from(byCourseMap.values());
 
     return {
-      totalCertificates,
-      recentCertificates,
-      certificatesByMonth: certificatesByMonth.map(entry => ({
-        month: entry.issuedAt.toISOString().slice(0, 7), // YYYY-MM format
-        count: entry._count
-      }))
+      totalIssued,
+      thisMonth,
+      thisYear,
+      byCourse
     };
   }
 }

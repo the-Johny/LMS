@@ -148,8 +148,8 @@ export class ContentController {
   }
 
   @Post('upload-certificate')
-  @Roles(Role.ADMIN)
-  @ApiOperation({ summary: 'Upload certificate file (Admin only)' })
+  @Roles(Role.INSTRUCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Upload certificate file (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Certificate uploaded successfully' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadCertificateFile(@UploadedFile() file: Express.Multer.File) {

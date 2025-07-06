@@ -161,4 +161,11 @@ export class LessonsService {
 
     return this.prisma.lesson.delete({ where: { id } });
   }
+
+  async uploadLessonFile(file: Express.Multer.File, lessonId: string) {
+    if (!file || !file.buffer) {
+      throw new Error('No file buffer provided');
+    }
+    return this.cloudinaryService.uploadFileBuffer(file.buffer, 'lessons', file.mimetype);
+  }
 }

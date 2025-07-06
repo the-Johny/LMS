@@ -443,7 +443,6 @@ export class ProgressService {
   async getStudentProgressAnalytics(userId: string, period: string = 'month') {
     const now = new Date();
     let startDate: Date;
-
     switch (period) {
       case 'week':
         startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -458,6 +457,7 @@ export class ProgressService {
         startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     }
 
+    // Get enrollments and progress in the period
     const enrollments = await this.prisma.enrollment.findMany({
       where: {
         userId,
@@ -469,28 +469,44 @@ export class ProgressService {
       },
     });
 
-    const totalEnrollments = enrollments.length;
-    const totalLessonsCompleted = enrollments.reduce(
+    const totalCourses = enrollments.length;
+    const lessonsCompleted = enrollments.reduce(
       (sum, enrollment) => sum + enrollment.progress.filter(p => p.completed).length,
       0
     );
+    const totalLessons = enrollments.reduce(
+      (sum, enrollment) => sum + enrollment.progress.length,
+      0
+    );
+    const averageProgress = totalLessons > 0 ? Math.round((lessonsCompleted / totalLessons) * 100) : 0;
+    const completedCourses = enrollments.filter(enrollment => {
+      const courseLessons = enrollment.progress.length;
+      const completed = enrollment.progress.filter(p => p.completed).length;
+      return courseLessons > 0 && completed === courseLessons;
+    }).length;
 
-    const coursesByCategory = enrollments.reduce((acc, enrollment) => {
-      const category = enrollment.course.category;
-      if (!acc[category]) acc[category] = 0;
-      acc[category]++;
-      return acc;
-    }, {});
+    // Placeholder for quizzesTaken and averageQuizScore (requires quiz attempt data)
+    const quizzesTaken = 0;
+    const averageQuizScore = 0;
+
+    // Placeholder for totalTimeSpent (requires time tracking, here just 0)
+    const totalTimeSpent = 0;
+
+    // Activity trend: lessons completed per day
+    const activityTrend: Array<{ date: string; lessonsCompleted: number; timeSpent: number }> = [];
+    // Optionally, you could group progress by date here if you have timestamps
 
     return {
       userId,
       period,
-      totalEnrollments,
-      totalLessonsCompleted,
-      coursesByCategory,
-      averageLessonsPerCourse: totalEnrollments > 0
-        ? Math.round(totalLessonsCompleted / totalEnrollments)
-        : 0,
+      totalCourses,
+      completedCourses,
+      averageProgress,
+      totalTimeSpent,
+      lessonsCompleted,
+      quizzesTaken,
+      averageQuizScore,
+      activityTrend
     };
   }
 }

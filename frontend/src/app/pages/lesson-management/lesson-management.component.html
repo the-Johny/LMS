@@ -91,6 +91,13 @@
               <div *ngIf="lessonForm.get('contentUrl')?.invalid && lessonForm.get('contentUrl')?.touched" class="text-red-500 text-sm mt-1">
                 Content URL is required.
               </div>
+              <!-- File upload UI -->
+              <div class="mt-2 flex items-center space-x-2">
+                <input type="file" (change)="onFileSelected($event)" [disabled]="uploadInProgress" />
+                <button type="button" (click)="uploadLessonContentFile()" [disabled]="!selectedFile || uploadInProgress" class="px-3 py-1 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:opacity-50">Upload File</button>
+                <span *ngIf="uploadInProgress" class="text-indigo-600 text-sm ml-2">Uploading...</span>
+                <span *ngIf="uploadError" class="text-red-500 text-sm ml-2">{{ uploadError }}</span>
+              </div>
             </div>
 
             <!-- Type and Order -->

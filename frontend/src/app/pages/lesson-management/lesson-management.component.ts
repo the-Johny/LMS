@@ -21,6 +21,9 @@ export class LessonManagementComponent implements OnInit {
   selectedLesson: any = null;
   isLoading = true;
   lessonForm: FormGroup;
+  selectedFile: File | null = null;
+  uploadInProgress = false;
+  uploadError: string | null = null;
 
   lessonTypes = ['PDF', 'VIDEO', 'TEXT', 'QUIZ', 'ASSIGNMENT'];
 
@@ -156,7 +159,14 @@ export class LessonManagementComponent implements OnInit {
           }
         });
       } else if (this.isEditingLesson && this.selectedLesson) {
-        this.instructorService.updateLesson(this.selectedLesson.id, lessonData).subscribe({
+        const updateData = {
+          title: lessonData.title,
+          contentUrl: lessonData.contentUrl,
+          type: lessonData.type,
+          order: lessonData.order,
+          isVisible: lessonData.isVisible
+        };
+        this.instructorService.updateLesson(this.selectedLesson.id, updateData).subscribe({
           next: (response) => {
             console.log('Lesson updated successfully:', response);
             this.loadLessons(this.selectedModule.id);
@@ -197,5 +207,33 @@ export class LessonManagementComponent implements OnInit {
       case 'ASSIGNMENT': return '📋';
       default: return '📄';
     }
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.uploadError = null;
+    }
+  }
+
+  uploadLessonContentFile() {
+    if (!this.selectedFile) {
+      this.uploadError = 'No file selected.';
+      return;
+    }
+    const lessonId = this.selectedLesson?.id || 'temp'; // Use a temp value if creating
+    this.uploadInProgress = true;
+    this.uploadError = null;
+    this.instructorService.uploadLessonFile(this.selectedFile, lessonId).subscribe({
+      next: (res) => {
+        this.lessonForm.patchValue({ contentUrl: res.url });
+        this.uploadInProgress = false;
+      },
+      error: (err) => {
+        this.uploadError = 'Upload failed.';
+        this.uploadInProgress = false;
+      }
+    });
   }
 } 

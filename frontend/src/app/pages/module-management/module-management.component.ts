@@ -117,7 +117,7 @@ export class ModuleManagementComponent implements OnInit {
           }
         });
       } else if (this.isEditingModule && this.selectedModule) {
-        this.instructorService.updateModule(this.selectedModule.id, moduleData).subscribe({
+        this.instructorService.updateModule(this.selectedModule.id, { title: moduleData.title }).subscribe({
           next: (response) => {
             console.log('Module updated successfully:', response);
             this.loadModules(this.selectedCourse.id);

@@ -92,16 +92,7 @@ The dashboard consumes the following backend endpoints:
 
 ### Creating a Course
 
-1. Click "Create Course" button
-2. Fill in the required information:
-   - Course title
-   - Description
-   - Learning objectives (one per line)
-   - Prerequisites (optional)
-   - Level (Beginner/Intermediate/Advanced)
-   - Category
-   - Publication status
-3. Click "Create Course"
+<!-- Removed instructions about creating a course from the dashboard -->
 
 ### Managing Students
 

@@ -61,6 +61,16 @@ export interface Certificate {
   issuedAt: string;
   courseTitle?: string;
   studentName?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  course?: {
+    id: string;
+    title: string;
+    description?: string;
+  };
 }
 
 export interface CertificateStats {
@@ -205,11 +215,23 @@ export class InstructorService {
   }
 
   createCourse(courseData: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/courses`, courseData);
+    if (courseData instanceof FormData) {
+      return this.http.post(`${this.baseUrl}/courses`, courseData);
+    } else {
+      return this.http.post(`${this.baseUrl}/courses`, courseData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
   }
 
   updateCourse(courseId: string, courseData: any): Observable<any> {
-    return this.http.put(`${this.baseUrl}/courses/${courseId}`, courseData);
+    if (courseData instanceof FormData) {
+      return this.http.patch(`${this.baseUrl}/courses/${courseId}`, courseData);
+    } else {
+      return this.http.patch(`${this.baseUrl}/courses/${courseId}`, courseData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
   }
 
   deleteCourse(courseId: string): Observable<any> {
@@ -252,7 +274,7 @@ export class InstructorService {
 
   // Enrollment management
   getCourseEnrollments(courseId: string): Observable<Enrollment[]> {
-    return this.http.get<Enrollment[]>(`${this.baseUrl}/enrollments/course/${courseId}`);
+    return this.http.get<Enrollment[]>(`${this.baseUrl}/enrollments/course/${courseId}/enrollments`);
   }
 
   // Quiz management
@@ -323,5 +345,18 @@ export class InstructorService {
 
   getLearningPathData(courseId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/analytics/course/${courseId}/learning-path`);
+  }
+
+  uploadLessonFile(file: File, lessonId: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('lessonId', lessonId);
+    return this.http.post<any>(`${this.baseUrl}/lessons/upload`, formData);
+  }
+
+  uploadCertificateFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/content/upload-certificate`, formData);
   }
 } 

@@ -83,4 +83,31 @@ export class CloudinaryController {
       size: result.bytes,
     };
   }
+
+  @Post('upload')
+  @Roles(Role.INSTRUCTOR, Role.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('folder') folder: string,
+  ) {
+    if (!file) {
+      throw new Error('No file uploaded');
+    }
+    if (!folder) {
+      throw new Error('No folder specified');
+    }
+    const result = await this.cloudinaryService.uploadFileBuffer(
+      file.buffer,
+      folder,
+      file.mimetype
+    );
+    return {
+      url: result.secure_url,
+      publicId: result.public_id,
+      format: result.format,
+      size: result.bytes,
+      resourceType: result.resource_type,
+    };
+  }
 } 

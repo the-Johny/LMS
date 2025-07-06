@@ -55,4 +55,8 @@ export class AuthService {
       message: existingUser ? 'Email is already registered' : 'Email is available'
     };
   }
+
+  async updateProfile(user: UserFromJwt, update: { name?: string; email?: string }) {
+    return this.usersService.update(user.userId, update);
+  }
 }
