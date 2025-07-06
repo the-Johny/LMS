@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CourseService, Course } from '../../Services/course.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-course-list',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './course-list.component.html',
 })
 export class CourseListComponent implements OnInit {
@@ -43,12 +44,4 @@ export class CourseListComponent implements OnInit {
     );
   }
 
-  getPlaceholderImage(title: string): string {
-    return `https://via.placeholder.com/400x300?text=${encodeURIComponent(title)}`;
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/400x300?text=No+Image';
-  }
 }

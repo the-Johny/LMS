@@ -5,4 +5,8 @@ import { CourseListComponent } from './pages/course-list/course-list.component';
 export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'courses', component: CourseListComponent },
+  // {
+  //   path: 'courses/:id',
+  //   component: CourseDetailsComponent,
+  // },
 ];
