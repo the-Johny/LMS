@@ -58,6 +58,10 @@ export class AuthService {
     });
   }
 
+  updateProfile(update: { name?: string; email?: string }): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/profile`, update);
+  }
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

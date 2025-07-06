@@ -26,12 +26,7 @@ export class LoginModalComponent {
     });
   }
  
-  constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    });
-  }
+  
 
   close() {
     this.modalService.closeModals();
@@ -63,22 +58,22 @@ export class LoginModalComponent {
       },
     });
   }
-  login() {
-    if (this.loginForm.invalid) return;
-    this.isLoading = true;
-    const { email, password } = this.loginForm.value;
-    this.auth.login(email, password).subscribe({
-      next: (res) => {
-        this.isLoading = false;
-        this.email = '';
-        this.password = '';
-        this.errorMessage = '';
-        this.close();
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = 'Invalid credentials';
-      },
-    });
-  }
+  // login() {
+  //   if (this.loginForm.invalid) return;
+  //   this.isLoading = true;
+  //   const { email, password } = this.loginForm.value;
+  //   this.auth.login(email, password).subscribe({
+  //     next: (res) => {
+  //       this.isLoading = false;
+  //       this.email = '';
+  //       this.password = '';
+  //       this.errorMessage = '';
+  //       this.close();
+  //     },
+  //     error: (err) => {
+  //       this.isLoading = false;
+  //       this.errorMessage = 'Invalid credentials';
+  //     },
+  //   });
+  // }
 }
