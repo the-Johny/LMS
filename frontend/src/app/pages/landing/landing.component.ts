@@ -23,13 +23,4 @@ export class LandingComponent implements OnInit {
       },
     });
   }
-
-  getPlaceholderImage(title: string): string {
-    return `https://via.placeholder.com/400x300?text=${encodeURIComponent(title)}`;
-  }
-
-  onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = 'https://via.placeholder.com/400x300?text=No+Image';
-  }
 }
