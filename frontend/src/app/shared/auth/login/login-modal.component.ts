@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ModalService } from '../../modal/modal.service';
 import { CommonModule } from '@angular/common';
 
@@ -10,4 +10,14 @@ import { CommonModule } from '@angular/common';
 })
 export class LoginModalComponent {
   constructor(public modalService: ModalService) {}
+
+  modal = inject(ModalService);
+
+  close() {
+    this.modal.closeModals();
+  }
+  
+  toggleToRegister() {
+    this.modal.openRegister();
+  }
 }
