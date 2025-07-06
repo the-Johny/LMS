@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import {
   IsString,
   IsArray,
@@ -8,6 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Level, Category } from '@prisma/client';
+import { Transform } from 'class-transformer';
 
 export class CreateCourseDto {
   @ApiProperty({ example: 'Introduction to Programming' })
@@ -23,11 +26,31 @@ export class CreateCourseDto {
   @ApiProperty({
     example: ['Understand basic programming concepts', 'Write simple programs'],
   })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
   objectives: string[];
 
   @ApiProperty({ example: ['Basic computer knowledge'] })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
   prerequisites: string[];
@@ -41,8 +64,19 @@ export class CreateCourseDto {
   category: Category;
 
   @ApiProperty({ default: false })
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   isPublished: boolean;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/courses/course-image.jpg' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @ApiProperty({ example: 'courses/course-image' })
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
 
   @IsOptional()
   @IsString()
@@ -64,12 +98,32 @@ export class UpdateCourseDto {
     example: ['Master advanced concepts', 'Build complex applications'],
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
   objectives?: string[];
 
   @ApiProperty({ example: ['Basic programming knowledge'] })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
   prerequisites?: string[];
@@ -86,8 +140,19 @@ export class UpdateCourseDto {
 
   @ApiProperty()
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   isPublished?: boolean;
+
+  @ApiProperty({ example: 'https://res.cloudinary.com/your-cloud/image/upload/v1234567890/courses/course-image.jpg' })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @ApiProperty({ example: 'courses/course-image' })
+  @IsOptional()
+  @IsString()
+  imagePublicId?: string;
 
   @IsOptional()
   @IsString()
@@ -118,6 +183,12 @@ export class CourseResponseDto {
 
   @ApiProperty()
   isPublished: boolean;
+
+  @ApiProperty()
+  imageUrl?: string;
+
+  @ApiProperty()
+  imagePublicId?: string;
 
   @ApiProperty()
   instructorId: string;

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/require-await */
-import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Request, UseGuards, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -57,5 +57,13 @@ export class AuthController {
   })
   async checkEmailAvailability(@Body() checkEmailDto: CheckEmailDto) {
     return this.authService.checkEmailAvailability(checkEmailDto.email);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  @ApiOperation({ summary: 'Update current user profile' })
+  @ApiResponse({ status: 200, description: 'User profile updated' })
+  async updateProfile(@Request() req: { user: UserFromJwt }, @Body() update: { name?: string; email?: string }) {
+    return this.authService.updateProfile(req.user, update);
   }
 }

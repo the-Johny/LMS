@@ -1,0 +1,46 @@
+<main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <p class="mt-2 text-gray-600">Loading course details...</p>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="text-center text-red-500 py-8">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && course" class="bg-white shadow rounded-lg overflow-hidden">
+    <img [src]="course.imageUrl || 'assets/default-course.png'" alt="{{ course.title }}" class="w-full h-64 object-cover" />
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ course.title }}</h1>
+      <p class="text-gray-700 mb-4">{{ course.description }}</p>
+      <div class="text-sm text-gray-500 mb-4">
+        <p>Level: {{ course.level }}</p>
+        <p>Category: {{ course.category }}</p>
+      </div>
+      <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors" (click)="enroll()">Enroll</button>
+    </div>
+  </div>
+
+  <!-- Reviews Container -->
+  <div class="max-w-3xl mx-auto mt-10">
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">Course Reviews</h2>
+    <div *ngIf="reviewsLoading" class="text-center py-4">
+      <div class="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+      <p class="mt-2 text-gray-600">Loading reviews...</p>
+    </div>
+    <div *ngIf="!reviewsLoading && reviewsError" class="text-center text-red-500 py-4">{{ reviewsError }}</div>
+    <div *ngIf="!reviewsLoading && reviews.length === 0 && !reviewsError" class="text-center text-gray-500 py-4">No reviews yet for this course.</div>
+    <div *ngIf="!reviewsLoading && reviews.length > 0">
+      <div *ngFor="let review of reviews" class="bg-gray-50 rounded-lg p-4 mb-4 shadow-sm">
+        <div class="flex items-center mb-2">
+          <span class="text-yellow-500 mr-2">
+            <ng-container *ngFor="let star of [].constructor(review.rating)">&#9733;</ng-container>
+            <ng-container *ngFor="let star of [].constructor(5 - review.rating)">&#9734;</ng-container>
+          </span>
+          <span class="text-xs text-gray-400 ml-2">{{ review.createdAt | date:'mediumDate' }}</span>
+        </div>
+        <div class="text-gray-800">{{ review.comment }}</div>
+      </div>
+    </div>
+  </div>
+</main> 

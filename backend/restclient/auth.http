@@ -1,0 +1,37 @@
+
+@TOKEN=
+### Check email availability
+POST http://localhost:3000/auth/check-email
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com"
+}
+
+
+### Register a new user
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "testuser@example.com",
+  "password": "password123",
+  "role": "STUDENT"
+}
+
+### Get current user profile 
+POST http://localhost:3000/auth/me
+Authorization: Bearer {{TOKEN}}
+
+### Create a user (Admin only)
+POST http://localhost:3000/users
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "Another User",
+  "email": "another@example.com",
+  "password": "password456",
+  "role": "INSTRUCTOR"
+}

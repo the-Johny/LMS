@@ -1,0 +1,16 @@
+/* Sidebar and layout styles for instructor layout */
+.flex {
+  display: flex;
+}
+
+.min-h-screen {
+  min-height: 100vh;
+}
+
+aside {
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+} 

@@ -56,13 +56,13 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  coursesCreated   Course[]           @relation("InstructorCourses")
+  coursesCreated   Course[]             @relation("InstructorCourses")
   enrollments      Enrollment[]
   reviews          Review[]
   progress         Progress[]
   quizAttempts     QuizAttempt[]
-  messagesSent     Message[]          @relation("Sender")
-  messagesReceived Message[]          @relation("Receiver")
+  messagesSent     Message[]            @relation("Sender")
+  messagesReceived Message[]            @relation("Receiver")
   certificates     Certificate[]
   discussions      DiscussionPost[]
   replies          Reply[]
@@ -80,18 +80,20 @@ model Course {
   level         Level
   category      Category
   isPublished   Boolean  @default(false)
+  imageUrl      String? // Cloudinary image URL
+  imagePublicId String? // Cloudinary public ID for image management
   instructor    User?    @relation("InstructorCourses", fields: [instructorId], references: [id])
   instructorId  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  modules       Module[]
-  enrollments   Enrollment[]
-  reviews       Review[]
-  announcements Announcement[]
-  quizzes       Quiz[]
-  discussions   DiscussionPost[]
-  certificates  Certificate[]
+  modules        Module[]
+  enrollments    Enrollment[]
+  reviews        Review[]
+  announcements  Announcement[]
+  quizzes        Quiz[]
+  discussions    DiscussionPost[]
+  certificates   Certificate[]
   courseProgress UserCourseProgress[]
 }
 
@@ -101,8 +103,11 @@ model Module {
   course   Course @relation(fields: [courseId], references: [id])
   courseId String
 
-  lessons Lesson[]
+  lessons        Lesson[]
   moduleProgress UserModuleProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Lesson {
@@ -116,6 +121,9 @@ model Lesson {
   moduleId    String
   progress    Progress[]
   completions LessonCompletion[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Enrollment {
@@ -141,7 +149,7 @@ model Progress {
   User         User?      @relation(fields: [userId], references: [id])
   userId       String?
 
-  @@unique([enrollmentId, lessonId]) 
+  @@unique([enrollmentId, lessonId])
 }
 
 model LessonCompletion {
@@ -259,23 +267,23 @@ model Reply {
 }
 
 model UserModuleProgress {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  moduleId  String
-  complete  Boolean  @default(false)
-  user      User     @relation(fields: [userId], references: [id])
-  module    Module   @relation(fields: [moduleId], references: [id])
+  id       Int     @id @default(autoincrement())
+  userId   String
+  moduleId String
+  complete Boolean @default(false)
+  user     User    @relation(fields: [userId], references: [id])
+  module   Module  @relation(fields: [moduleId], references: [id])
 
   @@unique([userId, moduleId], name: "userId_moduleId")
 }
 
 model UserCourseProgress {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  courseId  String
-  complete  Boolean  @default(false)
-  user      User     @relation(fields: [userId], references: [id])
-  course    Course   @relation(fields: [courseId], references: [id])
+  id       Int     @id @default(autoincrement())
+  userId   String
+  courseId String
+  complete Boolean @default(false)
+  user     User    @relation(fields: [userId], references: [id])
+  course   Course  @relation(fields: [courseId], references: [id])
 
   @@unique([userId, courseId], name: "userId_courseId")
 }

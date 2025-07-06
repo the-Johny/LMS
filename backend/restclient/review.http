@@ -1,0 +1,39 @@
+
+@TOKEN=
+@USER_ID=
+@COURSE_ID=
+@REVIEW_ID=
+
+### Create a review
+POST http://localhost:3000/reviews
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Great course!",
+  "userId": "{{USER_ID}}",
+  "courseId": "{{COURSE_ID}}"
+}
+
+### Get all reviews
+GET http://localhost:3000/reviews
+Authorization: Bearer {{TOKEN}}
+
+### Get review by ID
+GET http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{TOKEN}}
+
+
+### Update review
+PATCH http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "comment": "Updated review comment."
+}
+
+### Delete review
+DELETE http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{TOKEN}} 

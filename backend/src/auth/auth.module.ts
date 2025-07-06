@@ -9,6 +9,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
 import { UsersModule } from '../users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppMailerModule } from 'src/mailer/mailer.module';
 
 @Module({
   imports: [PassportModule, JwtModule.registerAsync({
@@ -18,7 +19,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         signOptions: { expiresIn: '1d' },
       }),
       inject: [ConfigService],
-    }), UsersModule],
+    }), UsersModule, AppMailerModule],
   providers: [AuthService, JwtStrategy, RolesGuard],
   controllers: [AuthController],
   exports: [AuthService, RolesGuard],

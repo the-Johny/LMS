@@ -8,6 +8,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @ApiTags('Enrollments')
@@ -17,68 +18,66 @@ export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
   // Enrollments
-  @Post()
-  @Roles(Role.STUDENT)
+  @Post('enroll')
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Enroll in a course (Student only)' })
   @ApiResponse({ status: 201, description: 'Enrolled successfully' })
-  async enroll(@Body() body: { courseId: string }, @CurrentUser() user: any) {
+  async enroll(@Body() body: { courseId: string }, @CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.enrollUser(user.userId, body.courseId);
   }
 
   @Get('my-enrollments')
-  @Roles(Role.STUDENT)
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Get my enrollments (Student only)' })
   @ApiResponse({ status: 200, description: 'Enrollments retrieved successfully' })
-  async getMyEnrollments(@CurrentUser() user: any) {
+  async getMyEnrollments(@CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.getEnrollmentsByUser(user.userId);
   }
 
-  @Get('course/:courseId')
-  @Roles(Role.ADMIN, Role.INSTRUCTOR)
+  @Get('course/:courseId/enrollments')
+  @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Get enrollments for a course (Admin/Instructor only)' })
   @ApiResponse({ status: 200, description: 'Enrollments retrieved successfully' })
-  async getCourseEnrollments(@Param('courseId') courseId: string, @CurrentUser() user: any) {
+  async getCourseEnrollments(@Param('courseId') courseId: string, @CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.getEnrollmentsByCourse(courseId);
   }
 
-  @Get()
+  @Get('all-enrollments')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Get all enrollments (Admin only)' })
   @ApiResponse({ status: 200, description: 'All enrollments retrieved successfully' })
-  async getAllEnrollments(@CurrentUser() user: any) {
+  async getAllEnrollments(@CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.getAllEnrollments();
   }
 
   @Delete(':id')
-  @Roles(Role.STUDENT)
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Unenroll from a course (Student only)' })
   @ApiResponse({ status: 200, description: 'Unenrolled successfully' })
-  async unenroll(@Param('id') id: string, @CurrentUser() user: any) {
+  async unenroll(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.unenrollUser(id);
   }
 
   // Progress
-  @Get(':enrollmentId/progress')
-  @Roles(Role.STUDENT)
-  getProgress(@Param('enrollmentId') enrollmentId: string, @CurrentUser() user: any) {
+  @Get('progress/:enrollmentId')
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
+  getProgress(@Param('enrollmentId') enrollmentId: string, @CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.getProgress(enrollmentId);
   }
 
-  @Post('progress/complete')
-  @Roles(Role.STUDENT)
-  markLessonComplete(@Body() body: MarkLessonCompleteDto, @CurrentUser() user: any) {
+  @Post('mark-lesson-complete')
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
+  markLessonComplete(@Body() body: MarkLessonCompleteDto, @CurrentUser() user: UserFromJwt) {
     return this.enrollmentsService.markLessonComplete(body.enrollmentId, body.lessonId);
   }
 
   // Certificates
   @Get('certificates/:userId')
-  @Roles(Role.ADMIN, Role.STUDENT)
-  getCertificatesByUser(@Param('userId') userId: string, @CurrentUser() user: any) {
-    // Allow if admin, or if the user is requesting their own certificates
-    if (user.role !== Role.ADMIN && user.userId !== userId) {
-      throw new ForbiddenException('You are not allowed to view these certificates');
-    }
-    return this.enrollmentsService.getCertificatesByUser(userId);
+  @Roles(Role.STUDENT, Role.INSTRUCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get certificates by user (Admin can see all, Instructor can see students in their courses, Student can see own)' })
+  @ApiResponse({ status: 200, description: 'Certificates retrieved successfully' })
+  getCertificatesByUser(@Param('userId') userId: string, @CurrentUser() user: UserFromJwt) {
+    return this.enrollmentsService.getCertificatesByUser(userId, user);
   }
 
   @Post('certificates')
