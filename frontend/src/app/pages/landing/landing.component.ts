@@ -16,11 +16,20 @@ export class LandingComponent implements OnInit {
   ngOnInit(): void {
     this.courseService.getAllCourses().subscribe({
       next: (courses: Course[]) => {
-        this.topCourses = courses.slice(0, 4);
+        this.topCourses = courses.slice(0, 4); 
       },
       error: (err: unknown) => {
         console.error('Error loading courses', err);
       },
     });
+  }
+
+  getPlaceholderImage(title: string): string {
+    return `https://via.placeholder.com/400x300?text=${encodeURIComponent(title)}`;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = 'https://via.placeholder.com/400x300?text=No+Image';
   }
 }

@@ -76,25 +76,39 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
   <ng-container *ngFor="let course of topCourses">
     <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-      <div class="h-48 bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-        <div class="text-white text-center">
-          <h3 class="text-lg font-semibold">{{ course.title }}</h3>
-        </div>
-      </div>
+      <img
+        [src]="getPlaceholderImage(course.title)"
+        (error)="onImageError($event)"
+        alt="{{ course.title }}"
+        class="w-full h-48 object-cover"
+      />
+
       <div class="p-4">
-        <div class="flex items-center mb-2">
-          <div class="flex text-yellow-400 text-sm">
-            <ng-container *ngFor="let star of [1,2,3,4,5]; let i = index">
-              <!-- <i class="fas" [ngClass]="course.rating > i ? 'fa-star' : 'fa-star text-gray-300'"></i> -->
-            </ng-container>
-          </div>
-          <!-- <span class="text-gray-600 text-sm ml-2">({{ course.rating }})</span> -->
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">
+          {{ course.title }}
+        </h3>
+        <p class="text-sm text-gray-600 mb-2 line-clamp-3">
+          {{ course.description }}
+        </p>
+
+        <div class="flex flex-col text-xs text-gray-500 space-y-1 mt-3">
+          <span>Level: {{ course.level }}</span>
+          <span>Category: {{ course.category }}</span>
+          <span
+            class="inline-block w-fit px-2 py-0.5 rounded-full text-white"
+            [ngClass]="{
+              'bg-green-600': course.isPublished,
+              'bg-gray-400': !course.isPublished
+            }"
+          >
+            {{ course.isPublished ? 'Published' : 'Draft' }}
+          </span>
         </div>
-        <!-- <p class="text-2xl font-bold text-gray-900">${{ course.price }}</p> -->
       </div>
     </div>
   </ng-container>
 </div>
+
 
 
     <div class="text-center">
