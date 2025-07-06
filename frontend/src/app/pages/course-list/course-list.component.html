@@ -1,0 +1,99 @@
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="mb-8">
+    <div class="flex justify-between items-center flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-1">Course List</h1>
+        <nav class="flex items-center text-sm text-gray-500">
+          <a routerLink="/" class="hover:text-blue-600">Home</a>
+          <i class="fas fa-chevron-right mx-2"></i>
+          <span class="text-gray-900">Course List</span>
+        </nav>
+      </div>
+
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <i
+            class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          ></i>
+          <input
+            type="text"
+            placeholder="Search for courses..."
+            [(ngModel)]="searchQuery"
+            (keyup)="searchCourses()"
+            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-12">
+    <div
+      class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+    ></div>
+    <p class="mt-2 text-gray-600">Loading courses...</p>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="text-center text-red-500 py-8">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Course Grid -->
+  <div
+    *ngIf="!loading && filteredCourses.length > 0"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+  >
+    <div
+      *ngFor="let course of filteredCourses"
+      class="bg-white shadow rounded-lg overflow-hidden"
+    >
+      <img
+        src="public/course_1.png"
+        alt="{{ course.title }}"
+        class="w-full h-48 object-cover"
+      />
+      <div class="p-4">
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ course.title }}
+        </h2>
+        <p class="text-sm text-gray-600 mt-2">
+          {{ course.description }}
+        </p>
+
+        <div class="text-xs text-gray-500 mt-3">
+          <p>Level: {{ course.level }}</p>
+          <p>Category: {{ course.category }}</p>
+          <p class="mt-1">
+            Published:
+            <span
+              class="inline-block px-2 py-0.5 text-white rounded-full"
+              [ngClass]="{
+                'bg-green-600': course.isPublished,
+                'bg-gray-400': !course.isPublished
+              }"
+            >
+              {{ course.isPublished ? "Yes" : "No" }}
+            </span>
+          </p>
+        </div>
+
+        <div class="mt-4 text-right">
+          <button
+            class="bg-blue-600 text-white px-4 py-2 w-full rounded-lg hover:bg-blue-700 transition-colors"
+            [routerLink]="['/courses', course.id]"
+          >
+            Enroll
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="!loading && filteredCourses.length === 0"
+    class="text-center py-12"
+  >
+    <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
+    <p class="text-gray-600 text-lg">No courses found matching your search.</p>
+  </div>
+</main>
