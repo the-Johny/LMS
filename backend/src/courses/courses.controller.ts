@@ -28,13 +28,13 @@ import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Courses')
 @Controller('courses')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Create a new course (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Course created successfully' })
   create(@Body() createCourseDto: CreateCourseDto) {
@@ -64,6 +64,7 @@ export class CoursesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @ApiOperation({ summary: 'Update course by ID (Admin/Instructor only)' })
   @ApiResponse({
@@ -80,6 +81,7 @@ export class CoursesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @ApiOperation({ summary: 'Delete course by ID (Admin/Instructor only)' })
   @ApiResponse({ status: 200, description: 'Course deleted successfully' })
@@ -89,6 +91,7 @@ export class CoursesController {
 
   @Put(':id/assign-instructor')
   @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Assign an instructor to a course (Admin only)' })
   @ApiResponse({ status: 200, description: 'Instructor assigned successfully' })
   async assignInstructor(
@@ -97,6 +100,4 @@ export class CoursesController {
   ) {
     return this.coursesService.assignInstructor(courseId, instructorId);
   }
-
-
 }

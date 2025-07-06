@@ -30,4 +30,5 @@ export class CourseService {
   getCourseById(id: string): Observable<Course> {
     return this.http.get<Course>(`${this.baseUrl}/${id}`);
   }
+  
 }
