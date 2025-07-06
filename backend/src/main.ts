@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
@@ -9,7 +12,9 @@ async function bootstrap() {
   // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('E-Learning Platform API')
-    .setDescription('A comprehensive e-learning platform API with role-based access control')
+    .setDescription(
+      'A comprehensive e-learning platform API with role-based access control',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('Authentication', 'User authentication and authorization')
@@ -31,15 +36,21 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors();
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-  }));
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   await app.listen(process.env.PORT ?? 3000);
-
-  console.log(` Server is running on http://localhost:3000`);
-  console.log(`Swagger UI available at http://localhost:3000/api`);
+  console.log(
+    `🚀 Application is running on: http://localhost:${process.env.PORT ?? 3000}`,
+  );
+  console.log(
+    `📚 Swagger documentation: http://localhost:${process.env.PORT ?? 3000}/api`,
+  );
 }
 bootstrap();

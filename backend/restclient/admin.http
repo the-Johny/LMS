@@ -1,13 +1,22 @@
-@ADMIN_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZTZlZDEzOC1lOTdmLTRjODUtOGMzYi0wNzA5ZTFjMzlmNmIiLCJlbWFpbCI6Iml0c2JyaWFuMjAyNUBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTE3MTU5NjYsImV4cCI6MTc1MTgwMjM2Nn0.Zc4fJ1lm5RYaS_MaRjAHtSDpCEKJPfjMeiT4OeuGlpY
+@ADMIN_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZTZlZDEzOC1lOTdmLTRjODUtOGMzYi0wNzA5ZTFjMzlmNmIiLCJlbWFpbCI6Iml0c2JyaWFuMjAyNUBnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTE3NDYxMjksImV4cCI6MTc1MTgzMjUyOX0.jxd_UHT408F_819MCdA9TtHFNjarI33XLnm5Cd3llhs
 @INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTcxNjE3MywiZXhwIjoxNzUxODAyNTczfQ.TmnRfERlPMABnbydLIWyydnh50vq3qR4FUr0WEqx5Hw
 @STUDENT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5M2JiYzhmMS0zN2IyLTQwYTYtYTkyYy01NzIzZGFjZmYxZTUiLCJlbWFpbCI6ImJyaWFua3VydXVpMzc2OEBnbWFpbC5jb20iLCJyb2xlIjoiU1RVREVOVCIsImlhdCI6MTc1MTcxNjIzOSwiZXhwIjoxNzUxODAyNjM5fQ.reuFdfWxTJIh8M4bAeAo31Q7UZ1Phj8VwCGhmqyABk0
-@COURSE_ID=2dface0f-7780-43b8-90c4-318dfe73da20
-@courseId=2dface0f-7780-43b8-90c4-318dfe73da20
-@MODULE_ID=8018ccea-1e2d-4ed1-9da1-8ab5670c220c
-@LESSON_ID=
+
+@COURSE_ID=558600e1-c76c-4aad-8f2a-72534ccf413c
+
+@MODULE_ID=e6d99566-5385-4506-b44f-d56fc9e43039
+
+@LESSON_ID=23657448-92cd-4e43-8550-4768be6b6040
+
 @ENROLLMENT_ID=
-@instructorId=9d5bea6b-c669-43e8-bebb-450950413313
-@userId=
+
+
+
+@USER_ID=93bbc8f1-37b2-40a6-a92c-5723dacff1e5
+
+@REVIEW_ID=
+
+@INSTRUCTOR_ID=9d5bea6b-c669-43e8-bebb-450950413313
 
 
 ### Login as admin
@@ -20,6 +29,40 @@ Content-Type: application/json
 }
 
 
+
+### Get all users
+GET http://localhost:3000/users
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get user by ID 
+GET http://localhost:3000/users/{{USER_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Update user 
+PATCH http://localhost:3000/users/{{USER_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "Updated Name"
+}
+
+
+
+### Get popular courses 
+GET http://localhost:3000/analytics/popular-courses
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Get course completion rate 
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/completion-rate
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Delete user (Admin only)
+DELETE http://localhost:3000/users/{{USER_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
 
 ### Admin creates an instructor
 POST http://localhost:3000/users
@@ -49,12 +92,12 @@ Content-Type: application/json
 }
 
 ###admin  assigns a instructor the course
-PUT http://localhost:3000/courses/{{courseId}}/assign-instructor
+PUT http://localhost:3000/courses/{{COURSE_ID}}/assign-instructor
 Authorization: Bearer {{ADMIN_TOKEN}}
 Content-Type: application/json
 
 {
-  "instructorId": "{{instructorId}}"
+  "instructorId": "{{INSTRUCTOR_ID}}"
 }
 
 
@@ -63,13 +106,13 @@ GET http://localhost:3000/courses
 Authorization: Bearer {{ADMIN_TOKEN}}
 
 ### Get a course by ID
-GET http://localhost:3000/content/courses/{{courseId}}
+GET http://localhost:3000/content/courses/{{COURSE_ID}}
 Authorization: Bearer {{ADMIN_TOKEN}}
 
 
 
 ### Update a course (Admin only)
-PUT http://localhost:3000/content/courses/{{courseId}}
+PUT http://localhost:3000/content/courses/{{COURSE_ID}}
 Authorization: Bearer {{ADMIN_TOKEN}}
 Content-Type: application/json
 
@@ -78,7 +121,7 @@ Content-Type: application/json
 }
 
 ### Delete a course (Admin only)
-DELETE http://localhost:3000/content/courses/{{courseId}}
+DELETE http://localhost:3000/content/courses/{{COURSE_ID}}
 Authorization: Bearer {{ADMIN_TOKEN}}
 
 ### Admin gets course enrollments
@@ -86,7 +129,7 @@ GET http://localhost:3000/enrollments/course/{{COURSE_ID}}
 Authorization: Bearer {{ADMIN_TOKEN}}
 
 ### Admin: Get certificates for any user
-GET http://localhost:3000/enrollments/certificates/{{userId}}
+GET http://localhost:3000/enrollments/certificates/{{USER_ID}}
 Authorization: Bearer {{ADMIN_TOKEN}}
 
 
@@ -96,8 +139,8 @@ Authorization: Bearer {{ADMIN_TOKEN}}
 Content-Type: application/json
 
 {
-  "userId": "{{userId}}",
-  "courseId": "{{courseId}}",
+  "userId": "{{USER_ID}}",
+  "courseId": "{{COURSE_ID}}",
   "certificateUrl": "https://example.com/certificate.pdf"
 }
 
@@ -107,6 +150,58 @@ Authorization: Bearer {{ADMIN_TOKEN}}
 
 
 ### Get modules by course (Admin/Instructor only)
-GET http://localhost:3000/content/courses/{{courseId}}/modules
+GET http://localhost:3000/content/courses/{{COURSE_ID}}/modules
 Authorization: Bearer {{ADMIN_TOKEN}}
 
+### Get all reviews
+GET http://localhost:3000/reviews
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get review by ID
+GET http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Update review
+PATCH http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+Content-Type: application/json
+
+{
+  "comment": "Updated review comment."
+}
+
+### Delete review
+DELETE http://localhost:3000/reviews/{{REVIEW_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}} 
+
+
+
+### Get instructor stats
+GET http://localhost:3000/analytics/instructor/{{INSTRUCTOR_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Get dashboard stats 
+GET http://localhost:3000/analytics/dashboard/stats
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get course engagement 
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/engagement?period=month
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+
+### Get module progress for a course 
+GET http://localhost:3000/analytics/course/{{COURSE_ID}}/module-progress
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get time spent analytics for user 
+GET http://localhost:3000/analytics/time-spent/{{USER_ID}}?courseId={{COURSE_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get certificate stats (
+GET http://localhost:3000/analytics/certificate-stats?instructorId={{INSTRUCTOR_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}
+
+### Get quiz attempts by user 
+GET http://localhost:3000/quizzes/attempts/user/{{USER_ID}}
+Authorization: Bearer {{ADMIN_TOKEN}}

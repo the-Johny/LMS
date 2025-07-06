@@ -1,12 +1,30 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, UseGuards, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete,
+  UseGuards,
+  Put,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
-import { CreateCourseDto, UpdateCourseDto, CourseResponseDto } from './dto/course.dto';
+import {
+  CreateCourseDto,
+  UpdateCourseDto,
+  CourseResponseDto,
+} from './dto/course.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -25,14 +43,22 @@ export class CoursesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all courses' })
-  @ApiResponse({ status: 200, description: 'Courses retrieved successfully', type: [CourseResponseDto] })
+  @ApiResponse({
+    status: 200,
+    description: 'Courses retrieved successfully',
+    type: [CourseResponseDto],
+  })
   findAll() {
     return this.coursesService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get course by ID' })
-  @ApiResponse({ status: 200, description: 'Course retrieved successfully', type: CourseResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Course retrieved successfully',
+    type: CourseResponseDto,
+  })
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }
@@ -40,8 +66,16 @@ export class CoursesController {
   @Patch(':id')
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @ApiOperation({ summary: 'Update course by ID (Admin/Instructor only)' })
-  @ApiResponse({ status: 200, description: 'Course updated successfully', type: CourseResponseDto })
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @CurrentUser() user: any) {
+  @ApiResponse({
+    status: 200,
+    description: 'Course updated successfully',
+    type: CourseResponseDto,
+  })
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @CurrentUser() user: UserFromJwt,
+  ) {
     return this.coursesService.update(id, updateCourseDto, user);
   }
 
@@ -49,7 +83,7 @@ export class CoursesController {
   @Roles(Role.ADMIN, Role.INSTRUCTOR)
   @ApiOperation({ summary: 'Delete course by ID (Admin/Instructor only)' })
   @ApiResponse({ status: 200, description: 'Course deleted successfully' })
-  remove(@Param('id') id: string, @CurrentUser() user: any) {
+  remove(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.coursesService.remove(id, user);
   }
 
@@ -59,8 +93,10 @@ export class CoursesController {
   @ApiResponse({ status: 200, description: 'Instructor assigned successfully' })
   async assignInstructor(
     @Param('id') courseId: string,
-    @Body('instructorId') instructorId: string
+    @Body('instructorId') instructorId: string,
   ) {
     return this.coursesService.assignInstructor(courseId, instructorId);
   }
-} 
+
+
+}

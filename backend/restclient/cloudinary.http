@@ -1,0 +1,58 @@
+@INSTRUCTOR_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ZDViZWE2Yi1jNjY5LTQzZTgtYmViYi00NTA5NTA0MTMzMTMiLCJlbWFpbCI6ImtpbXV0YWlicmlhbjkyMkBnbWFpbC5jb20iLCJyb2xlIjoiSU5TVFJVQ1RPUiIsImlhdCI6MTc1MTc0MzA4MCwiZXhwIjoxNzUxODI5NDgwfQ.TC3kiFJTGtQJSG6Eu2hg1yAzmbIRFx7_NHJk9HlWwtQ
+
+@LESSON_ID=23657448-92cd-4e43-8550-4768be6b6040
+@CERTIFICATE_ID=test-certificate-id
+
+### Upload lesson content file directly to Cloudinary
+POST http://localhost:3000/cloudinary/upload/lesson
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="lesson-video.mp4"
+Content-Type: video/mp4
+
+< ./test-files/lesson-video.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="lessonId"
+
+{{LESSON_ID}}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Upload certificate file directly to Cloudinary
+POST http://localhost:3000/cloudinary/upload/certificate
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="certificate.pdf"
+Content-Type: application/pdf
+
+< ./test-files/certificate.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="certificateId"
+
+{{CERTIFICATE_ID}}
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Upload content from URL to Cloudinary
+POST http://localhost:3000/cloudinary/upload/url
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "url": "https://example.com/video.mp4",
+  "folder": "lessons",
+  "publicId": "lesson_{{LESSON_ID}}"
+}
+
+### Upload certificate from URL to Cloudinary
+POST http://localhost:3000/cloudinary/upload/url
+Authorization: Bearer {{INSTRUCTOR_TOKEN}}
+Content-Type: application/json
+
+{
+  "url": "https://www.cs.toronto.edu/~mashiyat/csc309/Lectures/javascript.pdf",
+  "folder": "certificates",
+  "publicId": "certificate_{{CERTIFICATE_ID}}"
+} 

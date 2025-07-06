@@ -17,6 +17,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Content')
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
@@ -47,7 +48,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a new course (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Course created successfully' })
-  createCourse(@Body() data: CreateCourseDto, @CurrentUser() user: any) {
+  createCourse(@Body() data: CreateCourseDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.createCourse(data, user);
   }
 
@@ -55,7 +56,7 @@ export class ContentController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update course by ID (Admin only)' })
   @ApiResponse({ status: 200, description: 'Course updated successfully' })
-  updateCourse(@Param('id') id: string, @Body() data: UpdateCourseDto, @CurrentUser() user: any) {
+  updateCourse(@Param('id') id: string, @Body() data: UpdateCourseDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.updateCourse(id, data, user);
   }
 
@@ -63,7 +64,7 @@ export class ContentController {
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete course by ID (Admin only)' })
   @ApiResponse({ status: 200, description: 'Course deleted successfully' })
-  deleteCourse(@Param('id') id: string, @CurrentUser() user: any) {
+  deleteCourse(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.contentService.deleteCourse(id, user);
   }
 
@@ -80,7 +81,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a new module (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Module created successfully' })
-  createModule(@Body() data: CreateModuleDto, @CurrentUser() user: any) {
+  createModule(@Body() data: CreateModuleDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.createModule(data, user);
   }
 
@@ -88,7 +89,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Update module by ID (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Module updated successfully' })
-  updateModule(@Param('id') id: string, @Body() data: UpdateModuleDto, @CurrentUser() user: any) {
+  updateModule(@Param('id') id: string, @Body() data: UpdateModuleDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.updateModule(id, data, user);
   }
 
@@ -96,7 +97,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Delete module by ID (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Module deleted successfully' })
-  deleteModule(@Param('id') id: string, @CurrentUser() user: any) {
+  deleteModule(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.contentService.deleteModule(id, user);
   }
 
@@ -113,7 +114,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Create a new lesson (Instructor/Admin only)' })
   @ApiResponse({ status: 201, description: 'Lesson created successfully' })
-  createLesson(@Body() data: CreateLessonDto, @CurrentUser() user: any) {
+  createLesson(@Body() data: CreateLessonDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.createLesson(data, user);
   }
 
@@ -121,7 +122,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Update lesson by ID (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Lesson updated successfully' })
-  updateLesson(@Param('id') id: string, @Body() data: UpdateLessonDto, @CurrentUser() user: any) {
+  updateLesson(@Param('id') id: string, @Body() data: UpdateLessonDto, @CurrentUser() user: UserFromJwt) {
     return this.contentService.updateLesson(id, data, user);
   }
 
@@ -129,7 +130,7 @@ export class ContentController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Delete lesson by ID (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Lesson deleted successfully' })
-  deleteLesson(@Param('id') id: string, @CurrentUser() user: any) {
+  deleteLesson(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.contentService.deleteLesson(id, user);
   }
 

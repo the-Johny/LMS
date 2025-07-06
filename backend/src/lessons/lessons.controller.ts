@@ -21,6 +21,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @ApiTags('Lessons')
 @Controller('lessons')
@@ -36,7 +37,7 @@ export class LessonsController {
     description: 'Lesson created successfully',
     type: LessonResponseDto,
   })
-  create(@Body() createLessonDto: CreateLessonDto, @CurrentUser() user: any) {
+  create(@Body() createLessonDto: CreateLessonDto, @CurrentUser() user: UserFromJwt) {
     return this.lessonsService.create(createLessonDto, user);
   }
 
@@ -73,7 +74,7 @@ export class LessonsController {
   update(
     @Param('id') id: string,
     @Body() updateLessonDto: UpdateLessonDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserFromJwt,
   ) {
     return this.lessonsService.update(id, updateLessonDto, user);
   }
@@ -82,7 +83,7 @@ export class LessonsController {
   @Roles(Role.INSTRUCTOR, Role.ADMIN)
   @ApiOperation({ summary: 'Delete lesson by ID (Instructor/Admin only)' })
   @ApiResponse({ status: 200, description: 'Lesson deleted successfully' })
-  remove(@Param('id') id: string, @CurrentUser() user: any) {
+  remove(@Param('id') id: string, @CurrentUser() user: UserFromJwt) {
     return this.lessonsService.remove(id, user);
   }
 }

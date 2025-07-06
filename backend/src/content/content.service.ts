@@ -27,7 +27,7 @@ export class ContentService {
   async getCourseById(id: string) {
     return this.prisma.course.findUnique({ where: { id } });
   }
-  async createCourse(createCourseDto: CreateCourseDto, user: any) {
+  async createCourse(createCourseDto: CreateCourseDto, user: UserFromJwt) {
     const { instructorId, ...courseData } = createCourseDto;
     const data = {
       ...courseData,

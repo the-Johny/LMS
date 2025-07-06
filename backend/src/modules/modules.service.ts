@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateModuleDto, UpdateModuleDto } from './dto/module.dto';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @Injectable()
 export class ModulesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createModuleDto: CreateModuleDto, user: any) {
+  async create(createModuleDto: CreateModuleDto, user: UserFromJwt) {
     // Check if user is instructor of the course or admin
     const course = await this.prisma.course.findUnique({
       where: { id: createModuleDto.courseId },
@@ -43,7 +44,7 @@ export class ModulesService {
     return module;
   }
 
-  async update(id: string, updateModuleDto: UpdateModuleDto, user: any) {
+  async update(id: string, updateModuleDto: UpdateModuleDto, user: UserFromJwt) {
     const module = await this.prisma.module.findUnique({
       where: { id },
       include: { course: true },
@@ -63,7 +64,7 @@ export class ModulesService {
     });
   }
 
-  async remove(id: string, user: any) {
+  async remove(id: string, user: UserFromJwt) {
     const module = await this.prisma.module.findUnique({
       where: { id },
       include: { course: true },

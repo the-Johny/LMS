@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCourseDto, UpdateCourseDto } from './dto/course.dto';
 import { Role } from '@prisma/client';
+import { UserFromJwt } from '../auth/interfaces/auth.interface';
 
 @Injectable()
 export class CoursesService {
@@ -32,7 +33,7 @@ export class CoursesService {
     return course;
   }
 
-  async update(id: string, updateCourseDto: UpdateCourseDto, user: any) {
+  async update(id: string, updateCourseDto: UpdateCourseDto, user: UserFromJwt) {
     const course = await this.prisma.course.findUnique({ where: { id } });
 
     if (!course) {
@@ -46,7 +47,7 @@ export class CoursesService {
     return this.prisma.course.update({ where: { id }, data: updateCourseDto });
   }
 
-  async remove(id: string, user: any) {
+  async remove(id: string, user: UserFromJwt) {
     const course = await this.prisma.course.findUnique({ where: { id } });
 
     if (!course) {

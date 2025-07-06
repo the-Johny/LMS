@@ -341,7 +341,7 @@ export class AnalyticsService {
   }
 
   async getTimeSpentAnalytics(userId: string, courseId?: string) {
-    const whereClause: any = { userId };
+    const whereClause: Record<string, unknown> = { userId };
     if (courseId) {
       whereClause.enrollment = { courseId };
     }
@@ -384,12 +384,12 @@ export class AnalyticsService {
       userId,
       courseId,
       analytics: Object.values(courseAnalytics),
-      totalEstimatedTime: Object.values(courseAnalytics).reduce((sum: number, course: any) => sum + course.estimatedTimeSpent, 0)
+      totalEstimatedTime: Object.values(courseAnalytics).reduce((sum: number, course: { estimatedTimeSpent: number }) => sum + course.estimatedTimeSpent, 0)
     };
   }
 
   async getCertificateStats(instructorId?: string) {
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
     if (instructorId) {
       whereClause.course = { instructorId };
     }
