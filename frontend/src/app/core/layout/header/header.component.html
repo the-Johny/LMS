@@ -2,64 +2,118 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <div class="flex items-center">
-        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+        <div
+          class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center"
+        >
           <i class="fas fa-graduation-cap text-white text-sm"></i>
         </div>
         <span class="ml-2 text-xl font-bold text-gray-900">LearningHub</span>
       </div>
 
       <nav class="hidden md:flex space-x-8 items-center">
-        <a routerLink="/" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>
-        <a routerLink="/courses" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">Courses</a>
-        <a *ngIf="!authService.isAuthenticated()" (click)="modalService.openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Login</a>
+        <a
+          routerLink="/"
+          class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+          >Home</a
+        >
+        <a
+          routerLink="/courses"
+          class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+          >Courses</a
+        >
+        <a
+          (click)="modalService.openLogin()"
+          class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer"
+          >Add Course</a
+        >
 
-        <a (click)="modalService.openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Add Course</a>
-
-        <ng-container *ngIf="isLoggedIn; else guestLinks">
-          <span class="text-sm text-gray-700">
-            Welcome, {{ authService.getCurrentUser()?.name }}
-          </span>
-          <a (click)="logout()" class="text-gray-700 hover:text-red-600 px-3 py-2 text-sm font-medium cursor-pointer">Logout</a>
+        <ng-container *ngIf="!isLoggedIn">
+          <a
+            (click)="openLogin()"
+            class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer"
+            >Login</a
+          >
+          <button
+            (click)="openRegister()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            Create Account
+          </button>
         </ng-container>
-
-        <ng-template #guestLinks>
-          <a (click)="openLogin()" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium cursor-pointer">Login</a>
-          <button (click)="openRegister()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">Create Account</button>
-        </ng-template>
-
       </nav>
 
-      <!-- User Menu (when logged in) -->
-      <div *ngIf="authService.isAuthenticated()" class="hidden md:flex items-center space-x-4">
+      <!-- Profile Dropdown -->
+      <div *ngIf="isLoggedIn" class="hidden md:flex items-center space-x-4">
         <div class="relative group">
-          <button class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <button
+            class="flex items-center space-x-2 text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium"
+          >
+            <div
+              class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
+            >
               <span class="text-blue-600 font-medium text-sm">
-                {{ authService.getCurrentUser()?.name?.charAt(0) || 'U' }}
+                {{ authService.getCurrentUser()?.name?.charAt(0) || "U" }}
               </span>
             </div>
-            <span>{{ authService.getCurrentUser()?.name || 'User' }}</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            <span>{{ authService.getCurrentUser()?.name || "User" }}</span>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </button>
-          <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+          <div
+            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+          >
             <div class="px-4 py-2 border-b border-gray-200">
-              <p class="text-sm font-medium text-gray-900">{{ authService.getCurrentUser()?.name }}</p>
-              <p class="text-xs text-gray-500">{{ authService.getCurrentUser()?.email }}</p>
+              <p class="text-sm font-medium text-gray-900">
+                {{ authService.getCurrentUser()?.name }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ authService.getCurrentUser()?.email }}
+              </p>
             </div>
-            <a *ngIf="authService.isInstructor() || authService.isAdmin()" routerLink="/instructor/dashboard" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
-            <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-            <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</button>
+            <a
+              *ngIf="authService.isInstructor() || authService.isAdmin()"
+              routerLink="/instructor/dashboard"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >Dashboard</a
+            >
+            <a
+              routerLink="/profile"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >Profile</a
+            >
+            <button
+              (click)="logout()"
+              class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Mobile menu button -->
+      <!-- Mobile menu toggle -->
       <div class="md:hidden">
         <button (click)="toggleMenu()" aria-label="Toggle menu">
-          <svg class="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" stroke-width="2"
-            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            class="w-6 h-6 text-gray-800"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <path *ngIf="!menuOpen" d="M4 6h16M4 12h16M4 18h16" />
             <path *ngIf="menuOpen" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -68,25 +122,57 @@
     </div>
   </div>
 
+  <!-- Mobile menu -->
   <div *ngIf="menuOpen" class="md:hidden bg-white border-t shadow-sm">
     <nav class="px-4 py-4 space-y-2">
-      <a routerLink="/" class="block text-gray-700 hover:text-blue-600 text-sm font-medium">Home</a>
-      <a routerLink="/courses" class="block text-gray-700 hover:text-blue-600 text-sm font-medium">Courses</a>
+      <a
+        routerLink="/"
+        class="block text-gray-700 hover:text-blue-600 text-sm font-medium"
+        >Home</a
+      >
+      <a
+        routerLink="/courses"
+        class="block text-gray-700 hover:text-blue-600 text-sm font-medium"
+        >Courses</a
+      >
+      <a
+        (click)="modalService.openLogin()"
+        class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer"
+        >Add Course</a
+      >
 
-      <a (click)="modalService.openLogin()" class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer">Add Course</a>
-
-      <ng-container *ngIf="isLoggedIn; else mobileGuestLinks">
-        <span class="block text-sm text-gray-600">
-          Welcome, {{ authService.getCurrentUser()?.name }}
-        </span>
-        <a (click)="logout()" class="block text-gray-700 hover:text-red-600 text-sm font-medium cursor-pointer">Logout</a>
+      <ng-container *ngIf="!isLoggedIn; else mobileUserMenu">
+        <a
+          (click)="openLogin()"
+          class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer"
+          >Login</a
+        >
+        <button
+          (click)="openRegister()"
+          class="mt-2 w-full bg-blue-600 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          Create Account
+        </button>
       </ng-container>
 
-      <ng-template #mobileGuestLinks>
-        <a (click)="openLogin()" class="block text-gray-700 hover:text-blue-600 text-sm font-medium cursor-pointer">Login</a>
-        <button (click)="openRegister()" class="mt-2 w-full bg-blue-600 text-white py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Create Account</button>
+      <ng-template #mobileUserMenu>
+        <a
+          routerLink="/profile"
+          class="block text-gray-700 hover:text-blue-600 text-sm font-medium"
+          >Profile</a
+        >
+        <a
+          *ngIf="authService.isInstructor() || authService.isAdmin()"
+          routerLink="/instructor/dashboard"
+          class="block text-gray-700 hover:text-blue-600 text-sm font-medium"
+          >Dashboard</a
+        >
+        <a
+          (click)="logout()"
+          class="block text-red-600 hover:text-red-700 text-sm font-medium cursor-pointer"
+          >Logout</a
+        >
       </ng-template>
-
     </nav>
   </div>
 </header>

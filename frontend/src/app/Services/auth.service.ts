@@ -31,20 +31,26 @@ export class AuthService {
 
   login(email: string, password: string): Observable<AuthResponse> {
     return new Observable((observer) => {
-      this.http.post<AuthResponse>(`${this.baseUrl}/login`, { email, password }).subscribe({
-        next: (res) => {
-          localStorage.setItem('token', res.access_token);
-          localStorage.setItem('user', JSON.stringify(res.user));
-          this.isLoggedInSubject.next(true);
-          observer.next(res);
-          observer.complete();
-        },
-        error: (err) => observer.error(err),
-      });
+      this.http
+        .post<AuthResponse>(`${this.baseUrl}/login`, { email, password })
+        .subscribe({
+          next: (res) => {
+            localStorage.setItem('token', res.access_token);
+            localStorage.setItem('user', JSON.stringify(res.user));
+            this.isLoggedInSubject.next(true);
+            observer.next(res);
+            observer.complete();
+          },
+          error: (err) => observer.error(err),
+        });
     });
   }
 
-  register(name: string, email: string, password: string): Observable<AuthResponse> {
+  register(
+    name: string,
+    email: string,
+    password: string
+  ): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/register`, {
       name,
       email,
@@ -58,7 +64,12 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
   }
 
-  getCurrentUser(): { id: string; email: string; name: string; role: string } | null {
+  getCurrentUser(): {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  } | null {
     try {
       return JSON.parse(localStorage.getItem('user') || '');
     } catch {
@@ -78,37 +89,22 @@ export class AuthService {
     this.isLoggedInSubject.next(this.hasToken());
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
-  hasRole(role: string): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === role;
+  isAdmin(): boolean {
+    return this.getCurrentUser()?.role === 'ADMIN';
   }
 
   isInstructor(): boolean {
-    return this.hasRole('INSTRUCTOR');
-  }
-
-  isAdmin(): boolean {
-    return this.hasRole('ADMIN');
+    return this.getCurrentUser()?.role === 'INSTRUCTOR';
   }
 
   isStudent(): boolean {
-    return this.hasRole('STUDENT');
+    return this.getCurrentUser()?.role === 'STUDENT';
   }
 
-  updateProfile(userData: Partial<User>): Observable<User> {
-    return new Observable((observer) => {
-      this.http.put<User>(`${this.baseUrl}/profile`, userData).subscribe({
-        next: (user) => {
-          localStorage.setItem('user', JSON.stringify(user));
-          observer.next(user);
-          observer.complete();
-        },
-        error: (err) => observer.error(err),
-      });
-    });
+  hasRole(role: string): boolean {
+    return this.getCurrentUser()?.role === role;
+  }
+  isAuthenticated(): boolean {
+    return this.hasToken();
   }
 }
