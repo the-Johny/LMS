@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-
 export interface AuthResponse {
   access_token: string;
   user: {
@@ -26,20 +25,26 @@ export class AuthService {
 
   login(email: string, password: string): Observable<AuthResponse> {
     return new Observable((observer) => {
-      this.http.post<AuthResponse>(`${this.baseUrl}/login`, { email, password }).subscribe({
-        next: (res) => {
-          localStorage.setItem('token', res.access_token);
-          localStorage.setItem('user', JSON.stringify(res.user));
-          this.isLoggedInSubject.next(true);
-          observer.next(res);
-          observer.complete();
-        },
-        error: (err) => observer.error(err),
-      });
+      this.http
+        .post<AuthResponse>(`${this.baseUrl}/login`, { email, password })
+        .subscribe({
+          next: (res) => {
+            localStorage.setItem('token', res.access_token);
+            localStorage.setItem('user', JSON.stringify(res.user));
+            this.isLoggedInSubject.next(true);
+            observer.next(res);
+            observer.complete();
+          },
+          error: (err) => observer.error(err),
+        });
     });
   }
 
-  register(name: string, email: string, password: string): Observable<AuthResponse> {
+  register(
+    name: string,
+    email: string,
+    password: string
+  ): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/register`, {
       name,
       email,
@@ -53,14 +58,18 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
   }
 
-  getCurrentUser(): { id: string; email: string; name: string; role: string } | null {
+  getCurrentUser(): {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  } | null {
     try {
       return JSON.parse(localStorage.getItem('user') || '');
     } catch {
       return null;
     }
   }
-
 
   getToken(): string | null {
     return localStorage.getItem('token');
@@ -72,5 +81,24 @@ export class AuthService {
 
   refreshLoginStatus(): void {
     this.isLoggedInSubject.next(this.hasToken());
+  }
+
+  isAdmin(): boolean {
+    return this.getCurrentUser()?.role === 'ADMIN';
+  }
+
+  isInstructor(): boolean {
+    return this.getCurrentUser()?.role === 'INSTRUCTOR';
+  }
+
+  isStudent(): boolean {
+    return this.getCurrentUser()?.role === 'STUDENT';
+  }
+
+  hasRole(role: string): boolean {
+    return this.getCurrentUser()?.role === role;
+  }
+  isAuthenticated(): boolean {
+    return this.hasToken();
   }
 }
