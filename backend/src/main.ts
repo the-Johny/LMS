@@ -31,8 +31,6 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors();
 
-<<<<<<< HEAD
-  // Global validation pipe
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
@@ -40,11 +38,8 @@ async function bootstrap() {
   }));
 
   await app.listen(process.env.PORT ?? 3000);
-  console.log(`🚀 Application is running on: http://localhost:${process.env.PORT ?? 3000}`);
-  console.log(`📚 Swagger documentation: http://localhost:${process.env.PORT ?? 3000}/api`);
-=======
+
   console.log(` Server is running on http://localhost:3000`);
   console.log(`Swagger UI available at http://localhost:3000/api`);
->>>>>>> 42a7c2172a98b0d572c66f21caa4b29afaf55885
 }
 bootstrap();
