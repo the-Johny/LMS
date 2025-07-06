@@ -20,6 +20,8 @@ export class RegisterModalComponent {
   confirmPassword = '';
   successMessage = '';
   errorMessage = '';
+  isLoading = false;
+
 
 
   close() {
